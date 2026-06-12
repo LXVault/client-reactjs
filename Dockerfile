@@ -2,8 +2,9 @@
 FROM node:20-slim AS build
 WORKDIR /app
 
-# Vite inlines VITE_* vars at build time, so accept it as a build arg.
-ARG VITE_API_URL=http://localhost:4000/api
+# Vite inlines VITE_* vars at build time. Default to the same-origin relative
+# path `/api`, which nginx reverse-proxies to the backend container.
+ARG VITE_API_URL=/api
 ENV VITE_API_URL=${VITE_API_URL}
 
 COPY package*.json ./

@@ -10,10 +10,24 @@ export default defineConfig(() => {
     server: {
       port,
       host: true,
+      // Proxy same-origin /api calls to the backend during local development
+      // so the frontend can use relative URLs (matches the nginx setup).
+      proxy: {
+        '/api': {
+          target: process.env.VITE_PROXY_TARGET || 'http://localhost:4000',
+          changeOrigin: true,
+        },
+      },
     },
     preview: {
       port,
       host: true,
+      proxy: {
+        '/api': {
+          target: process.env.VITE_PROXY_TARGET || 'http://localhost:4000',
+          changeOrigin: true,
+        },
+      },
     },
   };
 });

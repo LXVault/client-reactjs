@@ -1,6 +1,9 @@
 // Thin fetch wrapper around the Express API.
-// The base URL falls back to localhost when VITE_API_URL is not provided.
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+// Defaults to the same-origin relative path `/api`, which is reverse-proxied
+// to the backend by nginx (production) or the Vite dev server (development).
+// This keeps the app working behind any host (localhost, Docker, Codespaces)
+// without baking an absolute backend URL into the build.
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const TOKEN_KEY = 'mcp_rag_token';
 
