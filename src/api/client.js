@@ -59,6 +59,8 @@ export const api = {
   // Projects (documents) & members
   createDocument: (payload) => request('/documents', { method: 'POST', body: payload }),
   getDocument: (id) => request(`/documents/${id}`),
+  updateDocument: (id, payload) =>
+    request(`/documents/${id}`, { method: 'PUT', body: payload }),
   listMembers: (id) => request(`/documents/${id}/members`),
   addMember: (id, payload) =>
     request(`/documents/${id}/members`, { method: 'POST', body: payload }),

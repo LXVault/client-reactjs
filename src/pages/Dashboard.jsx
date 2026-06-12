@@ -139,9 +139,14 @@ export default function Dashboard() {
                     {usingMock ? (
                       <span className="muted small">demo</span>
                     ) : (
-                      <Link className="link-btn" to={`/documents/${doc.id}/members`}>
-                        Members
-                      </Link>
+                      <>
+                        <Link className="link-btn" to={`/documents/${doc.id}`}>
+                          Details
+                        </Link>
+                        <Link className="link-btn" to={`/documents/${doc.id}/members`}>
+                          Members
+                        </Link>
+                      </>
                     )}
                   </td>
                 </tr>
