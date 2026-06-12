@@ -107,17 +107,16 @@ export default function OpenRouterKeyCard() {
                 autoComplete="off"
               />
             </div>
-            <div className="row-actions" style={{ textAlign: 'left' }}>
-              <button className="btn" type="submit" disabled={saving || !value.trim()}>
+            <div className="btn-row">
+              <button
+                className="btn btn-inline"
+                type="submit"
+                disabled={saving || !value.trim()}
+              >
                 {saving ? 'Saving…' : 'Save key'}
               </button>
               {status?.configured && (
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={onRemove}
-                  style={{ marginLeft: '0.5rem' }}
-                >
+                <button type="button" className="btn btn-ghost" onClick={onRemove}>
                   Remove
                 </button>
               )}

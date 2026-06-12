@@ -64,23 +64,25 @@ export default function EmbeddingModelCard({ projectId }) {
         <form onSubmit={onSave}>
           <div className="form-group">
             <label htmlFor="embedding-model">Model</label>
-            <select
+            {/* Free-text input with suggestions: pick a known model or type any
+                other OpenRouter embedding model id. */}
+            <input
               id="embedding-model"
+              list="embedding-model-options"
               value={model}
               onChange={(e) => setModel(e.target.value)}
               disabled={!canConfigure}
-            >
-              {/* Ensure the current value renders even if not in the allowlist */}
-              {!models.includes(model) && <option value={model}>{model}</option>}
+              placeholder="e.g. openai/text-embedding-3-small"
+              autoComplete="off"
+            />
+            <datalist id="embedding-model-options">
               {models.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
+                <option key={m} value={m} />
               ))}
-            </select>
+            </datalist>
           </div>
           {canConfigure ? (
-            <button className="btn" type="submit" disabled={saving}>
+            <button className="btn btn-inline" type="submit" disabled={saving || !model.trim()}>
               {saving ? 'Saving…' : 'Save model'}
             </button>
           ) : (

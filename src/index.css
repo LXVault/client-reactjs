@@ -298,6 +298,14 @@ h1 {
   padding: 0.6rem 1.1rem;
 }
 
+/* Inline row of buttons (e.g. Save + Remove) that sit side by side. */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .btn-ghost {
   width: auto;
   padding: 0.6rem 1.1rem;
