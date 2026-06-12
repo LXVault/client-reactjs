@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
+import EmbeddingModelCard from '../components/EmbeddingModelCard';
 
 const ROLE_TONE = { owner: 'badge-primary', editor: 'badge-success', viewer: 'badge-muted', admin: 'badge-warning' };
 
@@ -172,6 +173,8 @@ export default function Members() {
           )}
         </div>
       </div>
+
+      <EmbeddingModelCard projectId={id} />
     </div>
   );
 }
