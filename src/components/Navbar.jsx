@@ -26,6 +26,9 @@ export default function Navbar() {
             <NavLink to="/analysis" className={linkClass}>
               Analysis
             </NavLink>
+            <NavLink to="/tokens" className={linkClass}>
+              Tokens
+            </NavLink>
             <NavLink to="/profile" className={linkClass}>
               Profile
             </NavLink>
