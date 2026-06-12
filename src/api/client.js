@@ -71,6 +71,17 @@ export const api = {
   generateProjectToken: (id, payload) =>
     request(`/documents/${id}/token`, { method: 'POST', body: payload }),
   revokeProjectToken: (id) => request(`/documents/${id}/token`, { method: 'DELETE' }),
+
+  // Per-user OpenRouter API key (encrypted server-side; only status returned)
+  getOpenRouterKey: () => request('/me/openrouter-key'),
+  setOpenRouterKey: (apiKey) =>
+    request('/me/openrouter-key', { method: 'PUT', body: { apiKey } }),
+  deleteOpenRouterKey: () => request('/me/openrouter-key', { method: 'DELETE' }),
+
+  // Per-project embedding model (owner/admin can change)
+  getEmbeddingModel: (id) => request(`/documents/${id}/embedding-model`),
+  setEmbeddingModel: (id, model) =>
+    request(`/documents/${id}/embedding-model`, { method: 'PUT', body: { model } }),
 };
 
 export default api;

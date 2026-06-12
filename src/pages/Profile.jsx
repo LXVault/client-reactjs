@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import OpenRouterKeyCard from '../components/OpenRouterKeyCard';
 
 function formatDate(value) {
   if (!value) return '—';
@@ -66,6 +67,8 @@ export default function Profile() {
           <strong>{formatDate(user?.updated_at)}</strong>
         </div>
       </div>
+
+      <OpenRouterKeyCard />
     </div>
   );
 }
