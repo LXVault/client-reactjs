@@ -64,6 +64,13 @@ export const api = {
     request(`/documents/${id}/members`, { method: 'POST', body: payload }),
   removeMember: (id, userId) =>
     request(`/documents/${id}/members/${userId}`, { method: 'DELETE' }),
+
+  // Per-project execution tokens (one per user per project)
+  listTokens: () => request('/tokens'),
+  getProjectToken: (id) => request(`/documents/${id}/token`),
+  generateProjectToken: (id, payload) =>
+    request(`/documents/${id}/token`, { method: 'POST', body: payload }),
+  revokeProjectToken: (id) => request(`/documents/${id}/token`, { method: 'DELETE' }),
 };
 
 export default api;
