@@ -55,6 +55,15 @@ export const api = {
   profile: () => request('/profile'),
   documents: () => request('/documents'),
   analysis: () => request('/analysis'),
+
+  // Projects (documents) & members
+  createDocument: (payload) => request('/documents', { method: 'POST', body: payload }),
+  getDocument: (id) => request(`/documents/${id}`),
+  listMembers: (id) => request(`/documents/${id}/members`),
+  addMember: (id, payload) =>
+    request(`/documents/${id}/members`, { method: 'POST', body: payload }),
+  removeMember: (id, userId) =>
+    request(`/documents/${id}/members/${userId}`, { method: 'DELETE' }),
 };
 
 export default api;

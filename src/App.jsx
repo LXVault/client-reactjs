@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import Analysis from './pages/Analysis';
+import Members from './pages/Members';
 
 export default function App() {
   return (
@@ -21,6 +22,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/documents/:id/members"
+          element={
+            <ProtectedRoute>
+              <Members />
             </ProtectedRoute>
           }
         />
