@@ -2,8 +2,11 @@
 FROM node:20-slim AS build
 WORKDIR /app
 
-# Vite inlines VITE_* vars at build time. Default to the same-origin relative
-# path `/api`, which nginx reverse-proxies to the backend container.
+# Vite inlines VITE_* vars at build time. Set VITE_API_URL to the ABSOLUTE
+# backend URL including /api (e.g. https://your-backend.onrender.com/api): the
+# browser calls the backend directly and nginx here does NOT proxy /api. On
+# Render, add it as an env var on the service so it's passed to this build ARG.
+# The `/api` default only works when something else proxies the API same-origin.
 ARG VITE_API_URL=/api
 ENV VITE_API_URL=${VITE_API_URL}
 
