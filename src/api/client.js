@@ -1,9 +1,16 @@
 // Thin fetch wrapper around the Express API.
-// Defaults to the same-origin relative path `/api`, which is reverse-proxied
-// to the backend by nginx (production) or the Vite dev server (development).
-// This keeps the app working behind any host (localhost, Docker, Codespaces)
-// without baking an absolute backend URL into the build.
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+// VITE_API_URL is just the backend ORIGIN (e.g. https://api.example.com); the
+// client owns the `/api` path, so the env value never needs the suffix and the
+// routing stays a frontend concern. When unset it falls back to a same-origin
+// relative base, which the Vite dev server / a same-origin proxy serves.
+//
+// Tolerant of common variations: a trailing slash, or an accidental `/api`
+// suffix, both resolve to the same correct base.
+const API_ORIGIN = (import.meta.env.VITE_API_URL || '')
+  .trim()
+  .replace(/\/+$/, '')
+  .replace(/\/api$/i, '');
+const API_URL = `${API_ORIGIN}/api`;
 
 const TOKEN_KEY = 'mcp_rag_token';
 
