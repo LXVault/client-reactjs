@@ -6,9 +6,9 @@ import Modal from '../components/Modal';
 // Shown when the API returns no documents or is unreachable, so the UI is
 // never empty during development.
 const MOCK_DOCUMENTS = [
-  { id: 'mock-1', title: 'Onboarding Guide', summary: 'How to get started with the platform.', role: 'owner', chunk_count: 12, updated_at: '2026-06-01T10:00:00Z', is_owner: true },
-  { id: 'mock-2', title: 'API Reference', summary: 'Endpoints, auth and rate limits.', role: 'editor', chunk_count: 34, updated_at: '2026-06-05T14:30:00Z', is_owner: false },
-  { id: 'mock-3', title: 'Security Policy', summary: 'Data handling and access control.', role: 'viewer', chunk_count: 8, updated_at: '2026-06-08T09:15:00Z', is_owner: false },
+  { id: 'mock-1', title: 'Onboarding Guide', summary: 'How to get started with the platform.', role: 'owner', chunk_count: 12, file_count: 2, updated_at: '2026-06-01T10:00:00Z', is_owner: true },
+  { id: 'mock-2', title: 'API Reference', summary: 'Endpoints, auth and rate limits.', role: 'editor', chunk_count: 34, file_count: 5, updated_at: '2026-06-05T14:30:00Z', is_owner: false },
+  { id: 'mock-3', title: 'Security Policy', summary: 'Data handling and access control.', role: 'viewer', chunk_count: 8, file_count: 1, updated_at: '2026-06-08T09:15:00Z', is_owner: false },
 ];
 
 const ROLE_TONE = { owner: 'badge-primary', editor: 'badge-success', viewer: 'badge-muted', admin: 'badge-warning' };
@@ -78,6 +78,7 @@ export default function Dashboard() {
   };
 
   const totalChunks = documents.reduce((sum, d) => sum + (d.chunk_count || 0), 0);
+  const totalFiles = documents.reduce((sum, d) => sum + (d.file_count || 0), 0);
 
   if (loading) return <div className="page-center">Loading documents…</div>;
 
@@ -107,6 +108,10 @@ export default function Dashboard() {
           <div className="value">{totalChunks}</div>
           <div className="label">Total chunks</div>
         </div>
+        <div className="stat-card">
+          <div className="value">{totalFiles}</div>
+          <div className="label">Uploaded files</div>
+        </div>
       </div>
 
       <div className="card">
@@ -118,6 +123,7 @@ export default function Dashboard() {
                 <th>Title</th>
                 <th>Summary</th>
                 <th>Role</th>
+                <th>Files</th>
                 <th>Chunks</th>
                 <th>Updated</th>
                 <th aria-label="actions" />
@@ -133,6 +139,7 @@ export default function Dashboard() {
                       {doc.role || 'editor'}
                     </span>
                   </td>
+                  <td>{doc.file_count ?? 0}</td>
                   <td>{doc.chunk_count ?? 0}</td>
                   <td className="muted">{formatDate(doc.updated_at)}</td>
                   <td className="row-actions">
