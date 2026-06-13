@@ -49,6 +49,34 @@ async function request(path, { method = 'GET', body, auth = true } = {}) {
   return data;
 }
 
+// Multipart upload helper. Unlike `request`, we must NOT set Content-Type —
+// the browser sets it (with the multipart boundary) from the FormData body.
+async function upload(path, formData) {
+  const headers = {};
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, { method: 'POST', headers, body: formData });
+  } catch (networkErr) {
+    const err = new Error('Network error: unable to reach the API');
+    err.cause = networkErr;
+    throw err;
+  }
+
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+
+  if (!res.ok) {
+    const message = (data && data.error) || `Request failed (${res.status})`;
+    const err = new Error(message);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
 export const api = {
   register: (payload) => request('/auth/register', { method: 'POST', body: payload, auth: false }),
   login: (payload) => request('/auth/login', { method: 'POST', body: payload, auth: false }),
@@ -84,6 +112,17 @@ export const api = {
   getEmbeddingModel: (id) => request(`/documents/${id}/embedding-model`),
   setEmbeddingModel: (id, model) =>
     request(`/documents/${id}/embedding-model`, { method: 'PUT', body: { model } }),
+
+  // Knowledge-base files (the project's central index). Upload/delete are
+  // owner/admin only (enforced server-side); listing is open to any member.
+  listFiles: (id) => request(`/documents/${id}/files`),
+  uploadFiles: (id, fileList) => {
+    const form = new FormData();
+    Array.from(fileList).forEach((file) => form.append('files', file));
+    return upload(`/documents/${id}/files`, form);
+  },
+  deleteFile: (id, fileId) =>
+    request(`/documents/${id}/files/${fileId}`, { method: 'DELETE' }),
 };
 
 export default api;
