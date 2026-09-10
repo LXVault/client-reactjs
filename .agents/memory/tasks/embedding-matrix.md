@@ -23,9 +23,9 @@ change introduced. No new dependency, no framework, and new classes go in
 
 | # | Title | Scope | Repository | Branch | PR |
 |---|---|---|---|---|---|
-| 1 | Schema split, migration, coverage and backfill | The table, the migration, search, ingestion, the API | server-expressjs | `feat/embedding-matrix` | |
-| 2 | Coverage and backfill in the web app | The embedding model card and its API methods | client-reactjs | `feat/embedding-matrix` | |
-| 3 | Tool descriptions that explain coverage | `get_project` and `search_knowledge` wording, the tool reference | mcp | `feat/embedding-matrix` | |
+| 1 | Schema split, migration, coverage and backfill | The table, the migration, search, ingestion, the API | server-expressjs | `feat/embedding-matrix` | 12 |
+| 2 | Coverage and backfill in the web app | The embedding model card and its API methods | client-reactjs | `feat/embedding-matrix` | 9 |
+| 3 | Tool descriptions that explain coverage | `get_project` and `search_knowledge` wording, the tool reference | mcp | `feat/embedding-matrix` | 7 |
 
 ### Task 2 — feat/embedding-matrix
 
@@ -60,3 +60,10 @@ Depends on: task 1.
 * **The phone-width overflow was left alone.** Measured before and after this change: the
   page scroll width is identical, and the offending elements are the navbar and the members
   table, neither touched here. Reported as a finding instead of widening this task.
+
+## Status
+
+Done. Every branch is pushed and every pull request is open, each stating the pull
+request it merges after. Merging is the user's call and has not been requested.
+
+Record closed.
