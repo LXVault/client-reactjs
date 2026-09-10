@@ -76,6 +76,21 @@ the app is presentable without a running backend.
   unreachable API, not a `403`, a `412` for a missing OpenRouter key, or a validation
   error, all of which are shown as errors.
 
+## Embedding coverage
+
+The backend keys embeddings on `(chunk_id, model_name)`, so a project holds one vector per
+chunk per model and changing the selected model deletes nothing.
+
+* **Never describe a model change as discarding knowledge.** It does not. Chunks with no
+  vector for the newly selected model are pending, not lost, and switching back to a model
+  the project already covers is instant.
+* **Never show a chunk count as if it were searchable.** Search only reaches chunks with a
+  vector for the current model, so report coverage, meaning embedded against total.
+* **Never trigger a backfill implicitly.** Embedding spends the user's own OpenRouter
+  credits, so it is always a button they press, and the card says so.
+* Every embedding endpoint returns the same payload. Apply it with one function after a
+  read, a switch, a backfill or a removal rather than re-fetching.
+
 ## What must not be introduced
 
 * A second HTTP client, or a `fetch` call outside `src/api/client.js`.

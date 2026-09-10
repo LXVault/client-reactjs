@@ -14,8 +14,8 @@ goes back through the same API.
 |---|---|---|
 | `/login`, `/register` | Login, Register | Create an account or sign in. Both return a session token. |
 | `/` | Dashboard | Every project the user owns or belongs to, with chunk and file counts. |
-| `/documents/:id` | Project detail | Title and summary, knowledge file upload and deletion, the project token, and the embedding model. |
-| `/documents/:id/members` | Members | Add and remove members, set their role. |
+| `/documents/:id` | Project detail | Title and summary, knowledge file upload and deletion, and the project token. |
+| `/documents/:id/members` | Members | Add and remove members, set their role, and manage the project's embedding model. |
 | `/tokens` | Tokens | Every project token the user holds, in one place. |
 | `/analysis` | Analysis | Charts over the projects the user can reach. |
 | `/profile` | Profile | The account, and the user's OpenRouter API key. |
@@ -37,9 +37,16 @@ can read.
 base was built from. The backend splits its text into chunks, which are what search
 returns. The dashboard shows both counts.
 
-**Embedding model.** Chosen per project, as an OpenRouter model id such as
-`openai/text-embedding-3-small`, on the project detail screen. Only the owner and admins
-can change it.
+**Embedding model.** Chosen per project, as a provider-namespaced OpenRouter model id such
+as `openai/text-embedding-3-small`, on the members screen. Only the owner and admins can
+change it.
+
+A chunk carries one vector per model, so the model a project *searches with* and the models
+it *has vectors for* are different things. Changing the model deletes nothing: the previous
+model's vectors are kept, so switching back is instant. Chunks with no vector for the newly
+selected model are simply not searchable yet, which the card reports as coverage, and
+generating them is a separate, explicit action because it spends the user's own OpenRouter
+credits.
 
 **Project token.** A per project execution token the user generates and pastes into their
 MCP client. The backend traces every action the assistant takes back to the user who issued

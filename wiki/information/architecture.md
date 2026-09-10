@@ -46,7 +46,7 @@ its status. Pages render `err.message` and never inspect a response themselves.
 
 **One method per endpoint.** The exported `api` object mirrors the backend surface:
 `login`, `register`, `profile`, projects and members, files, tokens, the OpenRouter key,
-the embedding model, and analysis.
+the embedding model and its embeddings, and analysis.
 
 Multipart uploads use a separate helper in the same file, which deliberately omits
 `Content-Type` so the browser supplies the multipart boundary.
@@ -59,8 +59,21 @@ Multipart uploads use a separate helper in the same file, which deliberately omi
 | `Navbar` | Navigation and the signed in user. |
 | `ProtectedRoute` | Redirects to `/login` without a session. |
 | `Modal` | The one dialog primitive, used for destructive confirmations. |
-| `EmbeddingModelCard` | Reads and writes a project's embedding model, disabled for non admins. |
+| `EmbeddingModelCard` | Reads and writes a project's embedding model, reports how much of the knowledge base that model can search, backfills what is missing, and lists the models the project already holds vectors for. Disabled for non admins. Rendered on the members screen. |
 | `OpenRouterKeyCard` | Sets and clears the user's own API key. |
+
+## Embedding coverage
+
+The backend stores one vector per chunk per model, so a project can hold several models at
+once and changing the selected model never deletes anything. Every embedding endpoint
+returns the same payload: the selected model, `coverage` as total, embedded and pending
+chunk counts, and `storedModels` as the models that already have vectors.
+
+`EmbeddingModelCard` applies that one payload after a read, a switch, a backfill or a
+removal, so the card never needs a second round trip to know what an action cost. Backfill
+runs in a loop because the backend embeds in batches and reports what is left; the loop
+stops when a batch embeds nothing, so a chunk that cannot be embedded does not spin
+forever.
 
 ## Styling
 

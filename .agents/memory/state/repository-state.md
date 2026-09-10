@@ -36,15 +36,20 @@ connector, adopted version `1.0.0`. Nothing from it is copied into this reposito
 * No runtime configuration: `VITE_API_URL` is inlined at build time.
 * No pagination anywhere; every list renders whatever the API returns.
 
-## Known limitation being worked on
+## Embedding model handling
 
-`EmbeddingModelCard` tells the user that changing the model "applies to newly added
-knowledge", which understates what happens. The backend stores one embedding per chunk and
-search matches on an exact model name, so switching the model makes the whole existing
-knowledge base unsearchable until it is deleted and re-uploaded. The card shows no coverage
-information and offers no way to re-embed.
+Resolved in `1.1.0`, against the backend change of the same version.
+`EmbeddingModelCard`, rendered on the members screen, now shows a coverage bar and how many
+chunks are embedded with the selected model, offers a backfill button when any are pending,
+and lists every model the project already holds vectors for with a remove action for the
+ones not in use. Its copy says plainly that changing the model deletes nothing.
+
+Verified in Chromium against a live backend and database: 13 checks covering the switch,
+the pending state, backfill to completion, both models holding vectors at once, switching
+back with no backfill offered, and the card not overflowing at 390px.
 
 ## Next obvious step
 
-Once the backend keys embeddings on `(chunk_id, model_name)`, surface coverage on the card
-and add an action that embeds the chunks missing a vector for the selected model.
+Nothing outstanding on the embedding model. The page already overflows horizontally at
+phone width because of the navbar and the members table, which predates this work and is
+reported as a finding rather than fixed here.
