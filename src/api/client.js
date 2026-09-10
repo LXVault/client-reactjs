@@ -115,10 +115,23 @@ export const api = {
     request('/me/openrouter-key', { method: 'PUT', body: { apiKey } }),
   deleteOpenRouterKey: () => request('/me/openrouter-key', { method: 'DELETE' }),
 
-  // Per-project embedding model (owner/admin can change)
+  // Per-project embedding model (owner/admin can change). Both calls return the
+  // selected model plus coverage and the models the project already has vectors
+  // for, so changing one never needs a second round trip to know what it cost.
   getEmbeddingModel: (id) => request(`/documents/${id}/embedding-model`),
   setEmbeddingModel: (id, model) =>
     request(`/documents/${id}/embedding-model`, { method: 'PUT', body: { model } }),
+
+  // Embed the chunks that have no vector for the current model. The backend
+  // works in batches and reports what is still pending, so the caller repeats
+  // until nothing is left rather than waiting on one long request.
+  backfillEmbeddings: (id) =>
+    request(`/documents/${id}/embeddings/backfill`, { method: 'POST' }),
+
+  // Drop the vectors held for one model. The model id contains a slash, which
+  // is a path segment here by design and matches the backend's wildcard route.
+  deleteModelEmbeddings: (id, model) =>
+    request(`/documents/${id}/embeddings/${model}`, { method: 'DELETE' }),
 
   // Knowledge-base files (the project's central index). Upload/delete are
   // owner/admin only (enforced server-side); listing is open to any member.

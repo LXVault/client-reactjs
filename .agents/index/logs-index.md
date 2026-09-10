@@ -12,6 +12,7 @@ description: Release history of this frontend, newest version first, with the fi
 
 | Version | Summary | Files |
 |---|---|---|
+| [`1.1.0`](../../wiki/logs/1/1/0/CHANGELOG.md) | Embedding coverage, a backfill action, and copy that says a model change deletes nothing. | `CHANGELOG.md` |
 | [`1.0.0`](../../wiki/logs/1/0/0/CHANGELOG.md) | The app as it stands, plus the agent instruction, knowledge and memory system. | `CHANGELOG.md` |
 
 ## Maintenance
