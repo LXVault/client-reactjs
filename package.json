@@ -1,7 +1,7 @@
 {
   "name": "mcp-rag-client",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "React + Vite frontend for the MCP Server with Knowledge Base (RAG) feature",
   "scripts": {
