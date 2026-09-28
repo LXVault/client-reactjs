@@ -29,6 +29,12 @@ in `src/api/client.js`. On first load, a stored token is exchanged for the user 
 `GET /api/profile`; if the backend rejects it the token is cleared, which is how an expired
 session logs itself out.
 
+Logging out calls `POST /api/auth/logout`, which retires the token server-side by bumping
+the user's token version. A stateless JWT has no other way to be cancelled, so without that
+call a token read out of `localStorage` keeps working until it expires on its own. The local
+session ends immediately and the revocation continues in the background, so a slow or failed
+network never leaves the user sitting on a page they have already left.
+
 ## Talking to the backend
 
 `src/api/client.js` is the single boundary. It owns four things:
@@ -45,8 +51,8 @@ API`. A non 2xx response becomes an `Error` carrying the backend's own `error` s
 its status. Pages render `err.message` and never inspect a response themselves.
 
 **One method per endpoint.** The exported `api` object mirrors the backend surface:
-`login`, `register`, `profile`, projects and members, files, tokens, the OpenRouter key,
-the embedding model and its embeddings, and analysis.
+`login`, `register`, `logout`, `profile`, projects and members, files, tokens, the
+OpenRouter key, the embedding model and its embeddings, and analysis.
 
 Multipart uploads use a separate helper in the same file, which deliberately omits
 `Content-Type` so the browser supplies the multipart boundary.

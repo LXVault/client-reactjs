@@ -6,7 +6,11 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
+    // Deliberately not awaited. `logout` ends the local session synchronously
+    // and revokes the token in the background, so the navigation below happens
+    // straight away. `void` records that the promise is intentionally unhandled;
+    // `logout` never rejects, and this keeps that true if it ever did.
+    void logout();
     navigate('/login');
   };
 

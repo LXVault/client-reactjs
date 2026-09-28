@@ -22,7 +22,7 @@ concepts:
 | `src/main.jsx` | Mount point. Wraps the app in the router and `AuthProvider`. |
 | `src/App.jsx` | Every route, and which ones are wrapped in `ProtectedRoute`. |
 | `src/api/client.js` | The only module that calls `fetch`. Base URL resolution, the bearer token, error normalization, and one method per endpoint. |
-| `src/context/AuthContext.jsx` | The session: login, register, logout, and hydrating the user from a stored token. |
+| `src/context/AuthContext.jsx` | The session: login, register, logout, and hydrating the user from a stored token. Logout ends the local session immediately and revokes the token in the background. |
 | `src/pages/` | One file per screen: `Login`, `Register`, `Dashboard`, `ProjectDetail`, `Members`, `Tokens`, `Analysis`, `Profile`. |
 | `src/components/` | Shared pieces: `Layout`, `Navbar`, `Modal`, `ProtectedRoute`, `EmbeddingModelCard`, `OpenRouterKeyCard`. |
 | `src/index.css` | The entire stylesheet. One hand written class vocabulary, no framework. |

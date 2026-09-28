@@ -22,7 +22,7 @@ dependency is added and none is removed.
 | # | Title | Scope | Repository | Branch | PR |
 |---|---|---|---|---|---|
 | 1 | Dev-server exposure, then the version upgrade | `vite.config.js`, `Dockerfile`, `package.json`, version-referencing docs | client-reactjs | `build/dependency-upgrade` | not opened |
-| 2 | Session hygiene: real logout | `api.logout()`, `AuthContext`, `Navbar` | client-reactjs | `fix/session-hygiene` | not started |
+| 2 | Session hygiene: real logout | `api.logout()`, `AuthContext`, `Navbar` | client-reactjs | `fix/session-hygiene` | not opened |
 | 3 | Release | version and `wiki/logs/` | client-reactjs | — | needs approval |
 
 ### Task 1 — build/dependency-upgrade
@@ -120,9 +120,52 @@ majors are plain React with no changed API surface: `main.jsx` already used `cre
 the router usage is entirely `BrowserRouter`, `Routes`, `Route`, `Link`, `NavLink`,
 `Navigate`, `Outlet`, `useParams`, `useNavigate`, `useLocation`, all unchanged in v7.
 
+### Task 2 — fix/session-hygiene
+
+Landed:
+
+* `src/api/client.js`: `api.logout()`, a `POST /api/auth/logout`.
+* `src/context/AuthContext.jsx`: `logout` is now async. It issues the revocation, ends the
+  local session, and lets the revocation finish in the background.
+* `src/components/Navbar.jsx`: `void logout()`, so the intent is explicit and no rejection
+  can escape.
+* `wiki/information/architecture.md`: the session section and the `api` method list.
+
+**The defect.** `logout()` only cleared local state. The backend's `logout` handler bumps
+`token_version`, which retires every session token signed with the previous value — so
+before this, clicking Logout left a credential that kept working until it expired on its
+own. Anything that had read the token out of `localStorage` — an XSS, a shared machine, a
+console — stayed signed in after the user believed they had left.
+
+**Why the order in `logout` is load-bearing.** `request` reads the stored token and builds
+its `Authorization` header synchronously, before its first `await`, so the revocation is
+issued before the state updates clear the token. Clearing first would send the call
+unauthenticated and get a 401. Awaiting first would hold the user on the page for a round
+trip they did not ask to wait for.
+
+**Verified in a real browser**, driving the real `Navbar` and the real `AuthProvider` with a
+controllable `fetch`: 17 assertions, all passing, no console errors. The revocation fetch
+was deliberately left unresolved while the post-click state was measured, so "the session
+ended before the network answered" is a measurement and not an inference. The
+`Authorization: Bearer` header was confirmed on the wire, and the same suite passes with the
+revocation rejecting, with no unhandled rejection.
+
+A control runs first, asserting the pre-fix behaviour issues no revocation call. Without it,
+a harness that could not detect a missing revocation would make the rest of the suite
+meaningless — which is the same trap that produced a vacuous negative test in `mcp`.
+
+**Out of scope, and why.** Moving the JWT out of `localStorage` into an httpOnly cookie is
+the real fix for token theft, and it is a cross-repository change: the backend's
+`requireAuth` reads only the `Authorization` header and has no cookie support. Doing the
+half that is available here is worth more than doing none of it.
+
 ## Status
 
-Both commits are on `build/dependency-upgrade`, unpushed. No pull request has been opened and
-none has been asked for. Merging is the user's call.
+Two commits on `build/dependency-upgrade` and one on `fix/session-hygiene`, all unpushed.
+`fix/session-hygiene` is stacked on `build/dependency-upgrade`, so its pull request must
+target that branch, not `master`. No pull request has been opened and none has been asked
+for. Merging is the user's call.
+
+Task 3, the release, is not started and needs explicit version approval.
 
 Record open.
