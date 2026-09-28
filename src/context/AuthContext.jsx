@@ -51,10 +51,24 @@ export function AuthProvider({ children }) {
     return data.user;
   }
 
-  function logout() {
+  // Ends the local session immediately and retires the token server-side in the
+  // background. The order is load-bearing: `request` reads the stored token and
+  // builds its Authorization header synchronously, so the revocation below is
+  // issued before the state updates that clear it.
+  //
+  // Clearing first would send the call unauthenticated and get a 401, and
+  // awaiting first would hold the user on the page for a round trip they did
+  // not ask to wait for. A failed revocation is swallowed deliberately: the user
+  // asked to log out, and refusing to because the network is down would strand
+  // them in a session they have already decided to end. The token then stays
+  // valid until it expires, which is the same exposure as any other failed
+  // revocation.
+  async function logout() {
+    const revoked = api.logout().catch(() => {});
     setToken(null);
     setTokenState(null);
     setUser(null);
+    await revoked;
   }
 
   const value = useMemo(

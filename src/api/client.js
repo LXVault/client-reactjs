@@ -87,6 +87,10 @@ async function upload(path, formData) {
 export const api = {
   register: (payload) => request('/auth/register', { method: 'POST', body: payload, auth: false }),
   login: (payload) => request('/auth/login', { method: 'POST', body: payload, auth: false }),
+  // Retires every session token this user holds, by bumping token_version
+  // server-side. A stateless JWT cannot otherwise be cancelled, so without this
+  // call a logged-out token keeps working until it expires on its own.
+  logout: () => request('/auth/logout', { method: 'POST' }),
   profile: () => request('/profile'),
   documents: () => request('/documents'),
   analysis: () => request('/analysis'),
