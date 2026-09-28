@@ -10,7 +10,7 @@ Read this before editing anything in `mcp-rag-client`. Underlying facts live onc
 
 ## What this is
 
-A React 18 single page app built with Vite, plain JavaScript with JSX, no TypeScript. It is
+A React 19 single page app built with Vite, plain JavaScript with JSX, no TypeScript. It is
 the human facing client for the Express backend in `LXVault/server-expressjs`. Screens and
 concepts:
 [`../../../wiki/information/overview.md`](../../../wiki/information/overview.md).
@@ -26,7 +26,7 @@ concepts:
 | `src/pages/` | One file per screen: `Login`, `Register`, `Dashboard`, `ProjectDetail`, `Members`, `Tokens`, `Analysis`, `Profile`. |
 | `src/components/` | Shared pieces: `Layout`, `Navbar`, `Modal`, `ProtectedRoute`, `EmbeddingModelCard`, `OpenRouterKeyCard`. |
 | `src/index.css` | The entire stylesheet. One hand written class vocabulary, no framework. |
-| `vite.config.js` | Dev and preview servers, the port, and the `/api` proxy target. |
+| `vite.config.js` | Dev and preview servers: the port, the interface they bind to, and the `/api` proxy target. |
 | `nginx.conf`, `Dockerfile` | Production: a static build served by nginx. |
 
 ## Entry points

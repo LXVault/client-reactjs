@@ -2,7 +2,8 @@
 
 ## Requirements
 
-* Node.js 20 or newer. The build image is `node:20-slim`.
+* Node.js `^20.19.0` or `>=22.12.0`, which is what Vite 8 requires. The build image is
+  `node:24-slim`, on the current Active LTS line.
 * The Express backend running locally, if you want real data. Without it the dashboard and
   the analysis screen show demo rows and every other screen reports that the API is
   unreachable.
@@ -17,6 +18,10 @@ npm run dev
 The dev server listens on `FRONTEND_PORT`, default `5173`, and proxies `/api` to
 `VITE_PROXY_TARGET`, default `http://localhost:4000`. That proxy is why a local backend
 needs no CORS configuration and why no `.env` file is required to develop against one.
+
+It also binds to `localhost` and nothing else, so it is not reachable from another machine
+by default. To reach it from a container, a phone, or a second box, set `FRONTEND_HOST` to
+`0.0.0.0` — deliberately, because the dev server serves the source it transforms.
 
 Every variable and its fallback: [env.md](env.md).
 

@@ -4,7 +4,7 @@
 
 `Dockerfile` is a two stage build.
 
-1. **build**, on `node:20-slim`: takes `VITE_API_URL` as a build argument, installs
+1. **build**, on `node:24-slim`: takes `VITE_API_URL` as a build argument, installs
    dependencies, copies the source, and runs `npm run build` into `dist/`.
 2. **serve**, on `nginx:1.27-alpine`: copies `nginx.conf` over the default site and
    `dist/` into the web root, exposes `80`, and runs nginx in the foreground.

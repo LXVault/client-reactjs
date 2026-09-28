@@ -21,7 +21,7 @@ build step beyond Vite.
 
 ## Stack
 
-React 18, React Router 6, Recharts, Vite 5. One hand written stylesheet in
+React 19, React Router 7, Recharts 3, Vite 8. One hand written stylesheet in
 `src/index.css`, no CSS framework and no component library. Production is a static build
 served by nginx from a two stage image.
 
