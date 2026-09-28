@@ -14,16 +14,16 @@ someone deliberately says otherwise. The versions land in their own commit after
 exposure fix, so the exploitable half is not waiting on a major upgrade.
 
 **Detail.** Task 1 of 3 in this chain. Task 2 is the session-hygiene fix, and task 3 is a
-release, which needs explicit version approval and has not been asked for. No new
-dependency is added and none is removed.
+release, which needed explicit version approval — it was not asked for at the time this was
+written, and arrived later as 1.2.0. No new dependency is added and none is removed.
 
 ## Tasks
 
 | # | Title | Scope | Repository | Branch | PR |
 |---|---|---|---|---|---|
-| 1 | Dev-server exposure, then the version upgrade | `vite.config.js`, `Dockerfile`, `package.json`, version-referencing docs | client-reactjs | `build/dependency-upgrade` | not opened |
-| 2 | Session hygiene: real logout | `api.logout()`, `AuthContext`, `Navbar` | client-reactjs | `fix/session-hygiene` | not opened |
-| 3 | Release | version and `wiki/logs/` | client-reactjs | — | needs approval |
+| 1 | Dev-server exposure, then the version upgrade | `vite.config.js`, `Dockerfile`, `package.json`, version-referencing docs | client-reactjs | `build/dependency-upgrade` | #10 |
+| 2 | Session hygiene: real logout | `api.logout()`, `AuthContext`, `Navbar` | client-reactjs | `fix/session-hygiene` | #11 |
+| 3 | Release | version and `wiki/logs/` | client-reactjs | — | 1.2.0, released with `frontend-hardening.md` |
 
 ### Task 1 — build/dependency-upgrade
 
@@ -161,11 +161,17 @@ half that is available here is worth more than doing none of it.
 
 ## Status
 
-Two commits on `build/dependency-upgrade` and one on `fix/session-hygiene`, all unpushed.
-`fix/session-hygiene` is stacked on `build/dependency-upgrade`, so its pull request must
-target that branch, not `master`. No pull request has been opened and none has been asked
-for. Merging is the user's call.
+Done. #10 and #11 are both open and merged — #10 as `712556f` and #11 as `629c838`, both as
+merge commits. #11 was re-targeted to `master` before merging, which is the step that stops a
+stacked pull request reporting success while `master` stays behind.
 
-Task 3, the release, is not started and needs explicit version approval.
+Task 3, the release, is satisfied by **1.2.0**, which was released on the
+`chore/frontend-hardening-release` branch. That release describes both #10 and #11 — the
+loopback dev server, the dependency majors and server-side logout revocation — because
+neither carried a version claim of their own. See `frontend-hardening.md` and
+`wiki/logs/1/2/0/CHANGELOG.md`.
 
-Record open.
+Both feature branches are still present locally and on the remote. They are merged, and
+deletion is the user's call.
+
+Record closed.
