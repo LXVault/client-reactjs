@@ -23,10 +23,10 @@ removed, or changed.
 
 | # | Title | Scope | Repository | Branch | PR |
 |---|---|---|---|---|---|
-| 1 | Task record | this file | client-reactjs | `chore/frontend-hardening-plan` | not opened |
-| 2 | Response headers and reproducible installs | `nginx.conf`, `Dockerfile`, `wiki/environments/docker.md` | client-reactjs | `fix/response-headers` | not opened |
-| 3 | Input-handling hygiene | `src/api/client.js`, `Analysis.jsx`, `Dashboard.jsx`, `Tokens.jsx`, `wiki/environments/setup.md` | client-reactjs | `fix/input-handling` | not opened |
-| 4 | Release | version, `wiki/logs/`, the `PR` column above | client-reactjs | `chore/frontend-hardening-release` | not yet opened |
+| 1 | Task record | this file | client-reactjs | `chore/frontend-hardening-plan` | #12 |
+| 2 | Response headers and reproducible installs | `nginx.conf`, `Dockerfile`, `wiki/environments/docker.md` | client-reactjs | `fix/response-headers` | #13 |
+| 3 | Input-handling hygiene | `src/api/client.js`, `Analysis.jsx`, `Dashboard.jsx`, `Tokens.jsx`, `wiki/environments/setup.md` | client-reactjs | `fix/input-handling` | #14 |
+| 4 | Release | version, `wiki/logs/`, the `PR` column above | client-reactjs | `chore/frontend-hardening-release` | #15 |
 
 ## Decisions
 
@@ -170,16 +170,11 @@ before — its release was never asked for, and this one does not stand in for i
 
 ## Status
 
-Work complete and committed across four branches. **Not yet pushed, and no pull request is
-open** — the push and the pull-request gate have not been passed yet, and this entry is
-written before either rather than describing them as done.
+Work complete across four branches, all four pushed, all four pull requests open: #12, #13,
+#14 and #15, each stating the pull request it merges after. The `PR` column above is filled
+now that the numbers exist, in this commit rather than a follow-up, because the release
+branch was still open when they did.
 
-The `PR` column above stays as it is until the pull requests exist, since their numbers
-cannot be known before they are opened. It is filled by a separate memory-only commit
-afterwards, which is the pattern this organization already uses — `server-expressjs` and
-`mcp` each closed a record that way — and the one exception to filling the column in the
-release commit.
+Merging is the user's call and had not been requested when this was written.
 
-Merging remains the user's call and has not been requested.
-
-Record closed pending the pull requests.
+Record closed.
