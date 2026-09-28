@@ -62,3 +62,27 @@ way and for the same reason — it still says the fallback covers "an unreachabl
 banner. That is a **separate finding** and is not applied here: the protocol is one finding
 per report and the user selects them, and it is not this one. It is reported at the end of
 this chain instead.
+
+### Task 2 — docs/session-revocation
+
+`## Session`'s misleading clause is reworded and a `## Logout is a server call, not a
+clear` section is added. No other section of the file is touched.
+
+**Every claim was checked against the code before it was written down**, on both sides:
+
+* `src/api/client.js:93` — `logout: () => request('/auth/logout', { method: 'POST' })`.
+* `src/context/AuthContext.jsx` — `api.logout().catch(() => {})` issued first, then the
+  three setters, then `await revoked`. The revocation is caught, so the function cannot
+  reject.
+* `src/components/Navbar.jsx:13` — `void logout()`.
+* `server-expressjs` — `authController.js:150` bumps `token_version`, and `requireAuth`
+  reads `req.headers.authorization` with no cookie handling anywhere in `src/`. The only
+  matches for "cookie" in the backend are comments saying it authenticates *rather than*
+  with cookies.
+
+Writing the rule is where the check earned its place. The first draft said the revocation
+"is not awaited" — and the code does await it, at the end, after the state has already
+cleared. The accurate statement is that `logout()` catches rather than propagates, and that
+*callers* do not await. A rule that described the function wrongly would have been the same
+defect as the one it replaced, one paragraph later.
+
