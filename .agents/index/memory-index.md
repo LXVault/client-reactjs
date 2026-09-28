@@ -25,6 +25,7 @@ because continuity depends on it. Load only the rows whose scope matches the req
 | [`../memory/tasks/dependency-upgrade.md`](../memory/tasks/dependency-upgrade.md) | Closed record of the dev-server exposure fix and the version upgrade (#10, #11, released in 1.2.0): what each version went to, how the charts were verified in a real browser, and the three false alarms that check produced. |
 | [`../memory/tasks/frontend-hardening.md`](../memory/tasks/frontend-hardening.md) | Record of the response headers, the reproducible install, and the input-handling hygiene pass: what the CSP does and does not cover, and why the model id is not encoded whole. |
 | [`../memory/tasks/agents-setup.md`](../memory/tasks/agents-setup.md) | Record of the instruction system setup: goal, mode, what was created, and the decisions taken. |
+| [`../memory/tasks/session-rule.md`](../memory/tasks/session-rule.md) | Record of correcting the session rule after server-side logout made "logout clears the token" a false summary: what the rule now says about revocation, ordering and token theft. |
 
 ## Maintenance
 
