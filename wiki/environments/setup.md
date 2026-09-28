@@ -2,7 +2,8 @@
 
 ## Requirements
 
-* Node.js 20 or newer. The build image is `node:20-slim`.
+* Node.js `^20.19.0` or `>=22.12.0`, which is what Vite 8 requires. The build image is
+  `node:24-slim`, on the current Active LTS line.
 * The Express backend running locally, if you want real data. Without it the dashboard and
   the analysis screen show demo rows and every other screen reports that the API is
   unreachable.

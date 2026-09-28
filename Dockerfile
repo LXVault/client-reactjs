@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM node:20-slim AS build
+FROM node:24-slim AS build
 WORKDIR /app
 
 # Vite inlines VITE_* vars at build time. Set VITE_API_URL to the backend
