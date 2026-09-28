@@ -22,9 +22,9 @@ changes and no test is affected.
 
 | # | Title | Scope | Repository | Branch | PR |
 |---|---|---|---|---|---|
-| 1 | Task record | this file | client-reactjs | `chore/session-rule-plan` | |
-| 2 | Correct the session rule | `.agents/rules/repository.md` | client-reactjs | `docs/session-revocation` | |
-| 3 | Close the record | the `PR` column above | client-reactjs | `chore/session-rule-release` | |
+| 1 | Task record | this file | client-reactjs | `chore/session-rule-plan` | #17 |
+| 2 | Correct the session rule | `.agents/rules/repository.md` | client-reactjs | `docs/session-revocation` | #18 |
+| 3 | Close the record | the `PR` column above | client-reactjs | `chore/session-rule-release` | #19 |
 
 ## Decisions
 
@@ -86,3 +86,23 @@ cleared. The accurate statement is that `logout()` catches rather than propagate
 *callers* do not await. A rule that described the function wrongly would have been the same
 defect as the one it replaced, one paragraph later.
 
+
+### Task 3 — chore/session-rule-release
+
+The `PR` column is filled now that the numbers exist. Written in this commit rather than
+as a follow-up because this branch is the last one open and contains everything below it,
+which is what makes writing here rebase nothing.
+
+No version is claimed by this chain and no `wiki/logs/` directory is created. It corrects
+an instruction file; the rule is not shipped product and 1.2.0 already describes what
+released. A new version directory here would be a version claim this work does not support.
+
+**The finding this chain did not apply.** `§ The demo fallback` is stale in the same way
+`§ Session` was, and for the same reason: it still says the fallback covers "an unreachable
+API", which #14 changed to a *successful but empty* response, with a failure now producing
+an error banner and no sample data. It is reported to the user as its own finding rather
+than folded in here, because the protocol is one finding per report and the user selects
+them. Applying it needs a branch stacked on `fix/input-handling`, which is a separate
+dependency from this one.
+
+Record closed.
