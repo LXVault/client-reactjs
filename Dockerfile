@@ -11,7 +11,11 @@ ARG VITE_API_URL=
 ENV VITE_API_URL=${VITE_API_URL}
 
 COPY package*.json ./
-RUN npm install
+# `npm ci`, not `npm install`: it installs exactly what the committed lockfile
+# pins, and it fails the build when that lockfile has drifted out of sync with
+# package.json. `npm install` would quietly resolve a newer tree instead, so the
+# image could contain code that was never reviewed or audited.
+RUN npm ci
 COPY . .
 RUN npm run build
 

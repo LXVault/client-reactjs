@@ -66,3 +66,30 @@ point above rather than discovered later: the model id's slash, the early return
 `Analysis.jsx` that would have hidden the error banner behind "No analysis data.", and the
 paragraph in `wiki/environments/setup.md` that tells the reader demo rows mean the API is
 down — the exact inverse of what this chain makes them mean.
+
+### Task 2 — fix/response-headers
+
+`nginx.conf` gained the four headers and the dotfile rule; the Dockerfile installs with
+`npm ci`.
+
+**What was verified.** `npm ci` runs clean — 62 packages, 0 vulnerabilities — so the lockfile
+is in sync with `package.json` and the build will not fail on it. The production build emits
+no inline script, which is what makes plain `script-src 'self'` safe rather than a header
+that would have blanked the page.
+
+**What was NOT verified, and cannot be here.** The headers were never executed. This machine
+has no nginx, no Docker and no nginx under WSL, so there is nothing to run the config
+against. The plan said to confirm them with `curl -I`; that check was wrong on its own terms —
+`npm run preview` serves `dist/` with Vite's own server and never reads `nginx.conf`, so it
+would have passed whether or not these headers existed. What was actually done instead is a
+structural read: braces balanced, directives valid, the dotfile pattern checked against
+`/index.html` not matching it, and the lookahead confirmed as PCRE.
+
+The first run of a real deployment is where this gets proven. If the policy is wrong, the
+symptom is a blank page and a CSP violation in the console naming the directive — not a
+silent failure — which is the reason to ship a policy that tight in the first place.
+
+**A trap this task inherited.** `add_header` is not cumulative across blocks: a `location`
+that declares its own `add_header` discards every header inherited from `server`. The dotfile
+rule therefore declares none and uses `return 404`, so a dotfile response still inherits the
+full set.
