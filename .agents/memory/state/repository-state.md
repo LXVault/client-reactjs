@@ -7,7 +7,7 @@ description: Current known state of the mcp-rag-client frontend after the instru
 
 ## What exists
 
-A working React and Vite single page app, version `1.0.0`, plain JavaScript with JSX, no
+A working React and Vite single page app, version `1.2.0`, plain JavaScript with JSX, no
 build step beyond Vite.
 
 * Login and register, with the session held in `AuthContext` and the JWT in `localStorage`.

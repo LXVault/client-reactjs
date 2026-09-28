@@ -23,10 +23,10 @@ removed, or changed.
 
 | # | Title | Scope | Repository | Branch | PR |
 |---|---|---|---|---|---|
-| 1 | Task record | this file | client-reactjs | `chore/frontend-hardening-plan` | not opened |
-| 2 | Response headers and reproducible installs | `nginx.conf`, `Dockerfile`, `wiki/environments/docker.md` | client-reactjs | `fix/response-headers` | not opened |
-| 3 | Input-handling hygiene | `src/api/client.js`, `Analysis.jsx`, `Dashboard.jsx`, `Tokens.jsx`, `wiki/environments/setup.md` | client-reactjs | `fix/input-handling` | not opened |
-| 4 | Release | version, `wiki/logs/`, the `PR` column above | client-reactjs | `chore/frontend-hardening-release` | needs approval |
+| 1 | Task record | this file | client-reactjs | `chore/frontend-hardening-plan` | #12 |
+| 2 | Response headers and reproducible installs | `nginx.conf`, `Dockerfile`, `wiki/environments/docker.md` | client-reactjs | `fix/response-headers` | #13 |
+| 3 | Input-handling hygiene | `src/api/client.js`, `Analysis.jsx`, `Dashboard.jsx`, `Tokens.jsx`, `wiki/environments/setup.md` | client-reactjs | `fix/input-handling` | #14 |
+| 4 | Release | version, `wiki/logs/`, the `PR` column above | client-reactjs | `chore/frontend-hardening-release` | #15 |
 
 ## Decisions
 
@@ -144,3 +144,37 @@ taught me the docs were wrong in the same way, and `wiki/information/overview.md
 
 The second was the harness's own assertion count, which evaluated `results.length >= 12`
 before pushing its own result, so a correct run of 11 read as a failure.
+
+### Task 4 — chore/frontend-hardening-release
+
+Released as **1.2.0**, into `wiki/logs/1/2/0/CHANGELOG.md`, with `logs-index.md` and
+`package.json` in the same commit.
+
+**1.1.0 was not available.** The plan asked for a minor and the user approved 1.1.0; the
+first thing checked was the existing tree, and `wiki/logs/1/1/0/CHANGELOG.md` was already
+there, committed as `2e661a5` on 2026-09-10. Writing this chain's log into that directory
+would have rewritten a released version, which the changelog creator forbids. The user chose
+1.2.0 instead.
+
+**The manifest had drifted.** `package.json` said `1.0.0` while the logs were at `1.1.0` —
+1.1.0 shipped without ever bumping it. This is the same two-sources-of-truth problem reported
+for `mcp`, found here on the way past. The manifest is now `1.2.0` and agrees with the logs.
+The two versions still named in `repository-state.md` are the app's and the shared
+instruction set's, and the latter is correctly left at `1.0.0`.
+
+**What the release covers that this record does not.** PRs #10 and #11 merged before this
+chain began and carried no version claim of their own, so 1.2.0 is the first release to
+describe them: the loopback dev server, the dependency majors, and server-side logout
+revocation. Their own record, `dependency-upgrade.md`, stays open for the same reason it did
+before — its release was never asked for, and this one does not stand in for it.
+
+## Status
+
+Work complete across four branches, all four pushed, all four pull requests open: #12, #13,
+#14 and #15, each stating the pull request it merges after. The `PR` column above is filled
+now that the numbers exist, in this commit rather than a follow-up, because the release
+branch was still open when they did.
+
+Merging is the user's call and had not been requested when this was written.
+
+Record closed.
