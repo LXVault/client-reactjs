@@ -4,9 +4,9 @@
 
 * Node.js `^20.19.0` or `>=22.12.0`, which is what Vite 8 requires. The build image is
   `node:24-slim`, on the current Active LTS line.
-* The Express backend running locally, if you want real data. Without it the dashboard and
-  the analysis screen show demo rows and every other screen reports that the API is
-  unreachable.
+* The Express backend running locally, if you want real data. Without it every screen
+  reports that the API is unreachable — no screen falls back to sample data on a failure,
+  only on a genuinely empty account.
 
 ## Steps
 
@@ -27,10 +27,15 @@ Every variable and its fallback: [env.md](env.md).
 
 ## Verify
 
-Open `http://localhost:5173`. Register an account, and the dashboard should come up empty
-rather than showing the three demo projects. Demo rows carry a `demo` badge, and seeing
-them means the app could not reach the API: check that the backend is up on port 4000 and
-that `VITE_PROXY_TARGET` points at it.
+Open `http://localhost:5173`. Register an account, and the dashboard should come up showing
+the three demo projects with a `demo` badge and a note that they are sample data. They stand
+in for an account that has no projects yet, and disappear once the first real project
+exists.
+
+If the API cannot be reached you get an **error banner and an empty list** instead, never
+demo rows — a failed request is not the same as an empty account, and showing samples for it
+would report three projects for an account that has none. A banner means the backend is not
+up on port 4000 or `VITE_PROXY_TARGET` points somewhere else.
 
 Anything that embeds text, uploading a file or changing knowledge, needs an OpenRouter API
 key on the account. Set it on the profile screen. Without one those actions come back with

@@ -14,6 +14,19 @@ const API_URL = `${API_ORIGIN}/api`;
 
 const TOKEN_KEY = 'mcp_rag_token';
 
+// Path segments interpolated into a URL are encoded first. Several of them
+// come from a list the server returned rather than from a literal here, and a
+// value carrying `/`, `?` or `#` would otherwise change which endpoint the
+// request reaches — `/documents/../tokens` is a different route entirely.
+const seg = (value) => encodeURIComponent(String(value));
+
+// A model id is `{platform}/{model}` — `openai/text-embedding-3-small` — and the
+// backend matches it with a wildcard route (`/:id/embeddings/*model`) rather
+// than a named parameter. The slash is a path separator here by design, so
+// encoding the whole value would turn it into %2F and the route would stop
+// matching. Encode the parts, keep the separator.
+const modelSeg = (value) => String(value).split('/').map(seg).join('/');
+
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -97,21 +110,21 @@ export const api = {
 
   // Projects (documents) & members
   createDocument: (payload) => request('/documents', { method: 'POST', body: payload }),
-  getDocument: (id) => request(`/documents/${id}`),
+  getDocument: (id) => request(`/documents/${seg(id)}`),
   updateDocument: (id, payload) =>
-    request(`/documents/${id}`, { method: 'PUT', body: payload }),
-  listMembers: (id) => request(`/documents/${id}/members`),
+    request(`/documents/${seg(id)}`, { method: 'PUT', body: payload }),
+  listMembers: (id) => request(`/documents/${seg(id)}/members`),
   addMember: (id, payload) =>
-    request(`/documents/${id}/members`, { method: 'POST', body: payload }),
+    request(`/documents/${seg(id)}/members`, { method: 'POST', body: payload }),
   removeMember: (id, userId) =>
-    request(`/documents/${id}/members/${userId}`, { method: 'DELETE' }),
+    request(`/documents/${seg(id)}/members/${seg(userId)}`, { method: 'DELETE' }),
 
   // Per-project execution tokens (one per user per project)
   listTokens: () => request('/tokens'),
-  getProjectToken: (id) => request(`/documents/${id}/token`),
+  getProjectToken: (id) => request(`/documents/${seg(id)}/token`),
   generateProjectToken: (id, payload) =>
-    request(`/documents/${id}/token`, { method: 'POST', body: payload }),
-  revokeProjectToken: (id) => request(`/documents/${id}/token`, { method: 'DELETE' }),
+    request(`/documents/${seg(id)}/token`, { method: 'POST', body: payload }),
+  revokeProjectToken: (id) => request(`/documents/${seg(id)}/token`, { method: 'DELETE' }),
 
   // Per-user OpenRouter API key (encrypted server-side; only status returned)
   getOpenRouterKey: () => request('/me/openrouter-key'),
@@ -122,31 +135,31 @@ export const api = {
   // Per-project embedding model (owner/admin can change). Both calls return the
   // selected model plus coverage and the models the project already has vectors
   // for, so changing one never needs a second round trip to know what it cost.
-  getEmbeddingModel: (id) => request(`/documents/${id}/embedding-model`),
+  getEmbeddingModel: (id) => request(`/documents/${seg(id)}/embedding-model`),
   setEmbeddingModel: (id, model) =>
-    request(`/documents/${id}/embedding-model`, { method: 'PUT', body: { model } }),
+    request(`/documents/${seg(id)}/embedding-model`, { method: 'PUT', body: { model } }),
 
   // Embed the chunks that have no vector for the current model. The backend
   // works in batches and reports what is still pending, so the caller repeats
   // until nothing is left rather than waiting on one long request.
   backfillEmbeddings: (id) =>
-    request(`/documents/${id}/embeddings/backfill`, { method: 'POST' }),
+    request(`/documents/${seg(id)}/embeddings/backfill`, { method: 'POST' }),
 
   // Drop the vectors held for one model. The model id contains a slash, which
   // is a path segment here by design and matches the backend's wildcard route.
   deleteModelEmbeddings: (id, model) =>
-    request(`/documents/${id}/embeddings/${model}`, { method: 'DELETE' }),
+    request(`/documents/${seg(id)}/embeddings/${modelSeg(model)}`, { method: 'DELETE' }),
 
   // Knowledge-base files (the project's central index). Upload/delete are
   // owner/admin only (enforced server-side); listing is open to any member.
-  listFiles: (id) => request(`/documents/${id}/files`),
+  listFiles: (id) => request(`/documents/${seg(id)}/files`),
   uploadFiles: (id, fileList) => {
     const form = new FormData();
     Array.from(fileList).forEach((file) => form.append('files', file));
-    return upload(`/documents/${id}/files`, form);
+    return upload(`/documents/${seg(id)}/files`, form);
   },
   deleteFile: (id, fileId) =>
-    request(`/documents/${id}/files/${fileId}`, { method: 'DELETE' }),
+    request(`/documents/${seg(id)}/files/${seg(fileId)}`, { method: 'DELETE' }),
 };
 
 export default api;

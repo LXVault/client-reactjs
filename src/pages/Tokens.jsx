@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import Modal from '../components/Modal';
+
+// How long a copied token is left in the clipboard before it is cleared.
+const CLIPBOARD_TTL_MS = 30_000;
 
 function formatDate(value) {
   if (!value) return '—';
@@ -23,6 +26,17 @@ export default function Tokens() {
   const [revealed, setRevealed] = useState(null); // { project, token }
   const [copied, setCopied] = useState(false);
   const [busyId, setBusyId] = useState('');
+
+  // A project token is a bearer credential, and the clipboard is one of the
+  // few places it lands that the user did not choose and cannot easily audit —
+  // anything with clipboard access can read it. It is cleared after
+  // CLIPBOARD_TTL_MS, but only if it is still ours: reading the clipboard back
+  // can be refused by the browser or by the user, and clearing
+  // unconditionally would destroy whatever they copied in the meantime, which
+  // is a worse outcome than the one being fixed.
+  const clearTimer = useRef(null);
+
+  useEffect(() => () => clearTimeout(clearTimer.current), []);
 
   async function load() {
     setLoading(true);
@@ -85,9 +99,25 @@ export default function Tokens() {
 
   const copyToken = async () => {
     if (!revealed) return;
+    // Captured rather than read from `revealed` when the timer fires: the
+    // dialog can be closed and reopened for a different project in the meantime,
+    // and comparing against the new token would leave this one in the clipboard.
+    const token = revealed.token;
     try {
-      await navigator.clipboard.writeText(revealed.token);
+      await navigator.clipboard.writeText(token);
       setCopied(true);
+      clearTimeout(clearTimer.current);
+      clearTimer.current = setTimeout(async () => {
+        try {
+          if ((await navigator.clipboard.readText()) === token) {
+            await navigator.clipboard.writeText('');
+          }
+        } catch {
+          // Read-back refused or the page lost focus. The token stays, which
+          // is the same exposure as any other clipboard entry, and is a better
+          // outcome than clearing something the user copied since.
+        }
+      }, CLIPBOARD_TTL_MS);
     } catch {
       setCopied(false);
     }
@@ -197,6 +227,12 @@ export default function Tokens() {
             This is the token for <strong>{revealed.project.title}</strong>. It is shown
             only once — store it somewhere safe. Regenerating replaces it.
           </p>
+          {copied && (
+            <p className="muted small">
+              Copied. The clipboard is cleared after {CLIPBOARD_TTL_MS / 1000} seconds, if
+              the token is still the last thing in it.
+            </p>
+          )}
           <pre className="token-reveal">
             <code>{revealed.token}</code>
           </pre>

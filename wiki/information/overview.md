@@ -59,9 +59,14 @@ without a key comes back as a clear message rather than a generic failure.
 
 ## Demo mode
 
-The dashboard and the analysis screen fall back to example data when the API cannot be
-reached, so the app is presentable without a backend running. Those rows carry a `demo`
-badge. Nothing else in the app fabricates data.
+The dashboard and the analysis screen show example data when the API answers successfully
+but has nothing yet, so a new account is not a set of empty boxes. The dashboard marks those
+rows with a `demo` badge; the analysis screen shows a "Showing sample data" note above the
+charts. Both say so in words as well as by appearance.
+
+They appear **only** for an empty result. If a call fails, the screen shows an error banner
+and no rows — an unreachable API and an empty account are different problems and should not
+look the same. Nothing else in the app fabricates data.
 
 Routes, component layout and the path to the backend:
 [architecture.md](architecture.md).

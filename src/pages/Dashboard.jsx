@@ -47,9 +47,13 @@ export default function Dashboard() {
       }
       setError('');
     } catch (err) {
+      // No sample data here — the same reason as the analysis screen. An empty
+      // list beside the error banner says "the request failed"; three demo
+      // projects say "this account has projects" and are true of neither.
+      // `[]` rather than null, because the totals below call reduce on it.
       setError(err.message || 'Could not load documents');
-      setDocuments(MOCK_DOCUMENTS);
-      setUsingMock(true);
+      setDocuments([]);
+      setUsingMock(false);
     } finally {
       setLoading(false);
     }
