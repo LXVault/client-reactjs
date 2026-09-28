@@ -170,11 +170,19 @@ before — its release was never asked for, and this one does not stand in for i
 
 ## Status
 
-Work complete across four branches, all four pushed, all four pull requests open: #12, #13,
-#14 and #15, each stating the pull request it merges after. The `PR` column above is filled
-now that the numbers exist, in this commit rather than a follow-up, because the release
-branch was still open when they did.
+Work complete across four branches, all four pushed, and all four merged: #12 as `7f4359a`,
+#13 as `1ff0ba5`, #14 as `af76b3c` and #15 as `489f9ed`, each as a merge commit. The `PR`
+column above was filled in #15 rather than as a follow-up, because the release branch was
+still open when the numbers existed.
 
-Merging is the user's call and had not been requested when this was written.
+**Each pull request was re-targeted to `master` before it was merged, not after.** A forge
+only re-targets a stacked pull request when its base branch is deleted on merge; where that
+setting is off, #13 would have merged into `chore/frontend-hardening-plan` and #15 into
+`chore/frontend-hardening-release`, leaving `master` behind while every page said merged.
+`git log origin/master..chore/frontend-hardening-release` is now empty, which is the check
+that says the chain actually landed rather than that the pull requests closed.
+
+1.2.0 is on `master`, and `wiki/logs/1/2/0/CHANGELOG.md` is with it. All ten branches this
+record and `dependency-upgrade.md` produced have been deleted, locally and on the remote.
 
 Record closed.

@@ -161,17 +161,18 @@ half that is available here is worth more than doing none of it.
 
 ## Status
 
-Done. #10 and #11 are both open and merged — #10 as `712556f` and #11 as `629c838`, both as
-merge commits. #11 was re-targeted to `master` before merging, which is the step that stops a
-stacked pull request reporting success while `master` stays behind.
+Done. #10 merged as `712556f` and #11 as `629c838`, both as merge commits. #11 was re-targeted
+to `master` before merging, which is the step that stops a stacked pull request reporting
+success while `master` stays behind.
 
-Task 3, the release, is satisfied by **1.2.0**, which was released on the
-`chore/frontend-hardening-release` branch. That release describes both #10 and #11 — the
-loopback dev server, the dependency majors and server-side logout revocation — because
+Task 3, the release, is satisfied by **1.2.0**, released on the
+`chore/frontend-hardening-release` branch as #15. That release describes both #10 and #11 —
+the loopback dev server, the dependency majors and server-side logout revocation — because
 neither carried a version claim of their own. See `frontend-hardening.md` and
 `wiki/logs/1/2/0/CHANGELOG.md`.
 
-Both feature branches are still present locally and on the remote. They are merged, and
-deletion is the user's call.
+Both feature branches have been deleted, locally and on the remote, along with the four from
+`frontend-hardening.md` and the two from `session-rule.md`. `master` is the only branch this
+repository has left in either place.
 
 Record closed.
