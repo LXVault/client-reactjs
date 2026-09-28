@@ -58,9 +58,13 @@ export default function Analysis() {
         }
       } catch (err) {
         if (!active) return;
+        // No sample data here. A failed request is not an empty account, and
+        // rendering the sample set would report three projects and 54 chunks
+        // for an account that has neither — the numbers would be true of the
+        // fixture and false of the user, with nothing on screen to say which.
         setError(err.message || 'Could not load analysis');
-        setData(MOCK_ANALYSIS);
-        setUsingMock(true);
+        setData(null);
+        setUsingMock(false);
       } finally {
         if (active) setLoading(false);
       }
@@ -71,6 +75,11 @@ export default function Analysis() {
   }, []);
 
   if (loading) return <div className="page-center">Loading analysis…</div>;
+  // The error is checked before the empty case. A failed load also leaves
+  // `data` null, so without this the reader would be told there is simply no
+  // analysis data — the opposite of what went wrong, and the reason the failure
+  // is invisible. The banner is the same element the loaded view uses.
+  if (error && !data) return <div className="error-banner">{error}</div>;
   if (!data) return <div className="page-center">No analysis data.</div>;
 
   const barData = (data.chunksPerDocument || []).map((d) => ({

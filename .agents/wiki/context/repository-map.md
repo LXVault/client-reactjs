@@ -61,9 +61,11 @@ and nothing else. Verification is exercising the screen in a browser. Report it 
 * **nginx does not proxy `/api`.** That is deliberate: on Render the frontend and backend
   are separate services with no shared private hostname, so the browser calls the backend
   origin directly and the backend must allow it through `CORS_ORIGIN`.
-* **`Dashboard` and `Analysis` fall back to mock data** when the API is unreachable. A
-  screen that looks fine may be showing demo rows; check for the `demo` badge before
-  concluding a call succeeded.
+* **`Dashboard` and `Analysis` show example data only when the API answers with nothing.**
+  A failed request produces an error banner and no rows, never the sample set. So sample
+  rows mean an account with no data yet — a `demo` badge on the dashboard, a "Showing sample
+  data" note on the analysis screen — and an error banner means the call failed. The two are
+  no longer confusable, which they were when a failure also rendered the sample set.
 * **The backend calls a project a `document`.** Routes are `/documents/:id` and the API
   fields are `document_id`, while the UI says project. They are the same thing.
 * **Embedding and upload calls spend the user's own OpenRouter credits.** A `412` from the

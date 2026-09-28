@@ -93,3 +93,54 @@ silent failure — which is the reason to ship a policy that tight in the first 
 that declares its own `add_header` discards every header inherited from `server`. The dotfile
 rule therefore declares none and uses `return 404`, so a dotfile response still inherits the
 full set.
+
+### Task 3 — fix/input-handling
+
+Three defects, one branch.
+
+**Path segments are encoded.** Every interpolated value in `src/api/client.js` goes through
+`seg()`, except the model id, which goes through `modelSeg()` and keeps its slash. Verified
+by driving the real `api` object against a capturing fetch, 17/17: thirteen call sites encode
+a hostile id (`../../tokens` arriving as `..%2F..%2Ftokens`), the model arrives as
+`openai/text-embedding-3-small` with no `%2F` in it, and a control confirms an ordinary id
+like `abc-123` is left alone — so the assertions cannot pass by encoding indiscriminately.
+
+Reading the source could not have proved this. It shows which call sites were changed, not
+that none was missed.
+
+**A failed request no longer renders sample data.** `Dashboard` and `Analysis` both
+substituted their fixtures in the `catch` branch, so an unreachable API produced three demo
+projects and a plausible-looking set of charts for an account that has neither — true of the
+fixture, false of the user, with nothing on screen to say which. Verified in a real browser
+against both a rejected and an empty response, 12/12 across four scenarios.
+
+The empty-response cases are the control, and they are the reason the run means anything: if
+sample data had stopped appearing entirely, the error cases would still have passed. They
+still appear, on exactly the condition intended.
+
+Two render guards came with it. `Analysis` returns early at `if (!data)`, which on a failed
+load would have shown "No analysis data." and never reached the error banner — the failure
+made invisible, which is the same defect one layer down. It now checks `error` first.
+`Dashboard` calls `.reduce` on `documents`, so the error path sets `[]` rather than `null`.
+
+**A copied token is cleared from the clipboard** after 30 seconds, but only if the clipboard
+still holds it: read-back is attempted first, because clearing unconditionally would destroy
+whatever the user copied in the meantime. The token is captured into a local when the copy
+happens, not read from state when the timer fires, since the dialog can be closed and reopened
+for a different project inside that window.
+
+**Not verified.** The clipboard behaviour has not been run in a browser. It needs clipboard
+permission, and a check that grants it would be testing the grant, not the code. What stands
+behind it is the build, and the fact that both failure paths — `writeText` throwing, and
+`readText` being refused — are caught and leave the token in place rather than throwing
+inside a timer. That is the contained direction, but it is reasoning, not a measurement.
+
+**Two false alarms in this task, both mine.** The first run reported
+`analysis-empty` as failing to render sample data. It had: the assertion looked for a `demo`
+badge, and `Analysis` has no badge — it marks the sample set with a "Showing sample data"
+notice, and only `Dashboard` has the badge. The run was wrong, not the code. Correcting it
+taught me the docs were wrong in the same way, and `wiki/information/overview.md` and
+`.agents/wiki/context/repository-map.md` now say which component does what.
+
+The second was the harness's own assertion count, which evaluated `results.length >= 12`
+before pushing its own result, so a correct run of 11 read as a failure.
