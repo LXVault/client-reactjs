@@ -18,6 +18,10 @@ The dev server listens on `FRONTEND_PORT`, default `5173`, and proxies `/api` to
 `VITE_PROXY_TARGET`, default `http://localhost:4000`. That proxy is why a local backend
 needs no CORS configuration and why no `.env` file is required to develop against one.
 
+It also binds to `localhost` and nothing else, so it is not reachable from another machine
+by default. To reach it from a container, a phone, or a second box, set `FRONTEND_HOST` to
+`0.0.0.0` — deliberately, because the dev server serves the source it transforms.
+
 Every variable and its fallback: [env.md](env.md).
 
 ## Verify

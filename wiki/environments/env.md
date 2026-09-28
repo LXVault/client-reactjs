@@ -8,6 +8,17 @@ Every value has a fallback in code, so the app runs with no `.env` file at all. 
 | `VITE_API_URL` | empty | `src/api/client.js` | The backend **origin**, with no `/api` suffix. Empty resolves to a same origin relative base, which the dev server proxies. |
 | `VITE_PROXY_TARGET` | `http://localhost:4000` | `vite.config.js` | Where the dev and preview servers proxy `/api`. Development only. |
 | `FRONTEND_PORT` | `5173` | `vite.config.js` | Port for the dev and preview servers. |
+| `FRONTEND_HOST` | `localhost` | `vite.config.js` | Interface the dev and preview servers bind to. Loopback unless you set it. |
+
+## `FRONTEND_HOST` is loopback unless you say otherwise
+
+The dev and preview servers transform and serve the source they are given. Bound to every
+interface — which is what `host: true` did — that puts both on the network, where anything
+else on the LAN can read them.
+
+Set it to `0.0.0.0` only when the server genuinely must be reached from another machine: a
+container, a phone on the same network, a second box. The safe setting is the one you get by
+doing nothing, so making the exposure an explicit choice is the point.
 
 ## `VITE_API_URL` is an origin, not a base path
 
