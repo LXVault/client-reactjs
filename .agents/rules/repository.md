@@ -59,11 +59,40 @@ stylesheet with a shared class vocabulary: `card`, `btn` and its variants, `form
 written only through `setToken` in `src/api/client.js`.
 
 * On first load, a stored token is exchanged for the user through `api.profile()`. A
-  rejected token is cleared silently, which is the logout path for an expired session.
+  rejected token is cleared silently, which is how an expired session ends.
 * Components read the session with `useAuth()`. Nothing else touches `localStorage`
   directly.
 * `ProtectedRoute` guards every authenticated page. A new page that needs a session is
   wrapped in it in `src/App.jsx`, not guarded by its own check.
+
+## Logout is a server call, not a clear
+
+`useAuth().logout()` calls `api.logout()`, which issues `POST /api/auth/logout`. The
+backend bumps `token_version`, and every token signed with the previous value stops
+verifying. So a credential that was read out of `localStorage` before the click dies with
+the click, instead of staying good until it expired on its own.
+
+* **Clearing local state is not logout.** Anything that removes the token from the browser
+  without calling the API leaves a working credential behind. That is the whole reason the
+  expiry path above is described as *how an expired session ends* and not as logout.
+* **The order inside `logout` is load-bearing.** `request` reads the stored token and builds
+  its `Authorization` header synchronously, before its first `await`, so `api.logout()` is
+  issued before `setToken(null)` clears the token. Reversing the two sends the call
+  unauthenticated and gets a 401. The revocation is `.catch`-ed rather than propagated, so
+  `logout()` never rejects.
+* **Callers do not await it.** `Navbar` calls `void logout()`, so the state clears
+  immediately and the round trip finishes in the background. A caller that awaits the
+  returned promise holds the user on the page for a request they did not ask to wait for,
+  which is why it is left unawaited rather than as a stylistic choice.
+
+**This is not token-theft protection, and the rule must not start reading as though it
+were.** The JWT is in `localStorage` at the moment of the click, so anything that could run
+script on the origin can read it, and a token copied out beforehand worked until the
+revocation landed. The end state is an `httpOnly` cookie. That is a cross-repository change
+— the backend's `requireAuth` reads only the `Authorization` header and has no cookie
+support, so the client half on its own would do nothing — and it needs CSRF protection to
+land with it. Until both halves exist, treat the token as readable by anything on the page.
+
 
 ## The demo fallback
 
