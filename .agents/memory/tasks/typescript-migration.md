@@ -44,3 +44,20 @@ single page app and were left out on purpose:
 ### Task 1 — plan/typescript-migration
 
 This record, written before any of the work, and its row in `memory-index.md`.
+
+### Task 2 — build/dependency-update
+
+| Package | From | To |
+|---|---|---|
+| `react`, `react-dom` | `^19.3.0` | `^19.3.1` |
+| `react-router-dom` | `^7.18.4` | `^7.18.5` |
+| `recharts` | `^3.10.1` | `^3.10.1`, already latest |
+| `vite` | `^8.3.1` | `^8.3.8` |
+| `@vitejs/plugin-react` | `^6.1.1` | `^6.3.0` |
+
+Added as dev dependencies, for task 3: `typescript` `^7.0.2`, `@types/node` `^26.6.6`,
+`@types/react` `^19.3.0`, `@types/react-dom` `^19.3.0`. TypeScript 7 is the native
+compiler; it still installs as `tsc`.
+
+`npm audit`: 0 vulnerabilities. No code changed in this task, so `npm run build` on this
+branch is the same JavaScript build as before.
