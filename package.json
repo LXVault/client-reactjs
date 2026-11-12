@@ -6,7 +6,8 @@
   "description": "React + Vite frontend for the MCP Server with Knowledge Base (RAG) feature",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

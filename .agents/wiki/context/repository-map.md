@@ -10,7 +10,7 @@ Read this before editing anything in `mcp-rag-client`. Underlying facts live onc
 
 ## What this is
 
-A React 19 single page app built with Vite, plain JavaScript with JSX, no TypeScript. It is
+A React 19 single page app built with Vite, written in strict TypeScript with JSX. It is
 the human facing client for the Express backend in `LXVault/server-expressjs`. Screens and
 concepts:
 [`../../../wiki/information/overview.md`](../../../wiki/information/overview.md).
@@ -19,20 +19,21 @@ concepts:
 
 | Path | Holds |
 |---|---|
-| `src/main.jsx` | Mount point. Wraps the app in the router and `AuthProvider`. |
-| `src/App.jsx` | Every route, and which ones are wrapped in `ProtectedRoute`. |
-| `src/api/client.js` | The only module that calls `fetch`. Base URL resolution, the bearer token, error normalization, and one method per endpoint. |
-| `src/context/AuthContext.jsx` | The session: login, register, logout, and hydrating the user from a stored token. Logout ends the local session immediately and revokes the token in the background. |
+| `src/main.tsx` | Mount point. Wraps the app in the router and `AuthProvider`. |
+| `src/App.tsx` | Every route, and which ones are wrapped in `ProtectedRoute`. |
+| `src/api/client.ts` | The only module that calls `fetch`. Base URL resolution, the bearer token, error normalization, and one method per endpoint. |
+| `src/api/types.ts` | The response and payload shapes the screens read from the backend. |
+| `src/context/AuthContext.tsx` | The session: login, register, logout, and hydrating the user from a stored token. Logout ends the local session immediately and revokes the token in the background. |
 | `src/pages/` | One file per screen: `Login`, `Register`, `Dashboard`, `ProjectDetail`, `Members`, `Tokens`, `Analysis`, `Profile`. |
 | `src/components/` | Shared pieces: `Layout`, `Navbar`, `Modal`, `ProtectedRoute`, `EmbeddingModelCard`, `OpenRouterKeyCard`. |
 | `src/index.css` | The entire stylesheet. One hand written class vocabulary, no framework. |
-| `vite.config.js` | Dev and preview servers: the port, the interface they bind to, and the `/api` proxy target. |
+| `vite.config.ts` | Dev and preview servers: the port, the interface they bind to, and the `/api` proxy target. |
 | `nginx.conf`, `Dockerfile` | Production: a static build served by nginx. |
 
 ## Entry points
 
-* Mount: `src/main.jsx`, then `src/App.jsx` for routing.
-* Backend calls: `src/api/client.js`. Nothing else talks to the API.
+* Mount: `src/main.tsx`, then `src/App.tsx` for routing.
+* Backend calls: `src/api/client.ts`. Nothing else talks to the API.
 * Styling: `src/index.css`. Nothing else defines appearance.
 
 ## Running and verifying
@@ -40,17 +41,24 @@ concepts:
 ```
 npm install
 npm run dev          # http://localhost:5173, proxies /api to localhost:4000
-npm run build        # the only mechanical check available
+npm run typecheck    # tsc over src/ and vite.config.ts, no output
+npm run build        # typecheck, then vite build: the only mechanical check available
 ```
 
 The dev server proxies `/api`, so a locally running backend needs no CORS configuration and
 no `.env`. Full setup:
 [`../../../wiki/environments/setup.md`](../../../wiki/environments/setup.md).
 
-**There is no test suite and no linter.** `npm run build` catches syntax and import errors
-and nothing else. Verification is exercising the screen in a browser. Report it that way.
+**There is no test suite and no linter.** `npm run build` catches type, syntax and import
+errors and nothing else. Verification is exercising the screen in a browser. Report it that way.
 
 ## Gotchas
+
+* **`tsc` never emits.** Vite compiles; `tsc` only checks. `src/api/types.ts` is cast onto
+  responses, not validated against them, so a backend field rename still type checks.
+* **`.agents/rules/repository.md` still lists TypeScript as something not to introduce, and
+  still names the `.js`/`.jsx` paths.** The migration was asked for explicitly; the rule
+  change was proposed rather than written, as instruction changes are.
 
 * **`VITE_API_URL` is an origin, not a base path.** The client appends `/api`. Passing
   `https://host/api` works only because the wrapper strips the suffix defensively; do not

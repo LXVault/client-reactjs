@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { api } from '../api/client';
+import type { FormEvent } from 'react';
+import type { OpenRouterKeyStatus } from '../api/types';
+import { api, errorMessage } from '../api/client';
 
-function formatDate(value) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
   try {
     return new Date(value).toLocaleString();
@@ -14,20 +16,20 @@ function formatDate(value) {
 // server-side and used whenever *they* run semantic search / add knowledge.
 // The plaintext is never returned — only a masked status.
 export default function OpenRouterKeyCard() {
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState<OpenRouterKeyStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  async function load() {
+  async function load(): Promise<void> {
     try {
       const data = await api.getOpenRouterKey();
       setStatus(data);
       setError('');
     } catch (err) {
-      setError(err.message || 'Could not load key status');
+      setError(errorMessage(err, 'Could not load key status'));
     } finally {
       setLoading(false);
     }
@@ -37,7 +39,7 @@ export default function OpenRouterKeyCard() {
     load();
   }, []);
 
-  const onSave = async (e) => {
+  const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setNotice('');
@@ -48,7 +50,7 @@ export default function OpenRouterKeyCard() {
       setValue('');
       setNotice('Key saved. It is encrypted and used only for your searches.');
     } catch (err) {
-      setError(err.message || 'Could not save key');
+      setError(errorMessage(err, 'Could not save key'));
     } finally {
       setSaving(false);
     }
@@ -62,7 +64,7 @@ export default function OpenRouterKeyCard() {
       setStatus({ configured: false, last4: null, updatedAt: null });
       setNotice('Key removed.');
     } catch (err) {
-      setError(err.message || 'Could not remove key');
+      setError(errorMessage(err, 'Could not remove key'));
     }
   };
 

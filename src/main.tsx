@@ -5,7 +5,12 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// index.html always carries #root; a missing one is a broken build, not a state
+// to render around.
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Missing #root element in index.html');
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>

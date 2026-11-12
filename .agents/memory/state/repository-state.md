@@ -7,8 +7,8 @@ description: Current known state of the mcp-rag-client frontend after the instru
 
 ## What exists
 
-A working React and Vite single page app, version `1.2.0`, plain JavaScript with JSX, no
-build step beyond Vite.
+A working React and Vite single page app, version `1.2.0`, written in strict TypeScript
+with JSX. `tsc` type checks and Vite compiles; there is no other build step.
 
 * Login and register, with the session held in `AuthContext` and the JWT in `localStorage`.
 * Dashboard listing the user's projects with chunk and file counts.
@@ -21,7 +21,8 @@ build step beyond Vite.
 
 ## Stack
 
-React 19, React Router 7, Recharts 3, Vite 8. One hand written stylesheet in
+React 19, React Router 7, Recharts 3, Vite 8, TypeScript 7. Backend response shapes are
+typed in `src/api/types.ts`, as the client reads them. One hand written stylesheet in
 `src/index.css`, no CSS framework and no component library. Production is a static build
 served by nginx from a two stage image.
 
@@ -32,7 +33,8 @@ connector, adopted version `1.0.0`. Nothing from it is copied into this reposito
 
 ## What is not built
 
-* No test suite, no linter configuration, no CI workflow.
+* No test suite, no linter configuration, no CI workflow. `npm run build` runs `tsc` first,
+  which is the only mechanical check.
 * No runtime configuration: `VITE_API_URL` is inlined at build time.
 * No pagination anywhere; every list renders whatever the API returns.
 

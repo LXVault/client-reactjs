@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
+import type { DocumentSummary, TokenInfo } from '../api/types';
+
+// The raw token is only available once, right after generation.
+interface RevealedToken {
+  project: DocumentSummary;
+  token: string;
+}
 import { Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, errorMessage } from '../api/client';
 import Modal from '../components/Modal';
 
 // How long a copied token is left in the clipboard before it is cleared.
 const CLIPBOARD_TTL_MS = 30_000;
 
-function formatDate(value) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
   try {
     return new Date(value).toLocaleString();
@@ -16,14 +23,13 @@ function formatDate(value) {
 }
 
 export default function Tokens() {
-  const [projects, setProjects] = useState([]);
-  const [tokensByProject, setTokensByProject] = useState({});
+  const [projects, setProjects] = useState<DocumentSummary[]>([]);
+  const [tokensByProject, setTokensByProject] = useState<Record<string, TokenInfo>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  // The raw token is only available once, right after generation.
-  const [revealed, setRevealed] = useState(null); // { project, token }
+  const [revealed, setRevealed] = useState<RevealedToken | null>(null);
   const [copied, setCopied] = useState(false);
   const [busyId, setBusyId] = useState('');
 
@@ -34,16 +40,16 @@ export default function Tokens() {
   // can be refused by the browser or by the user, and clearing
   // unconditionally would destroy whatever they copied in the meantime, which
   // is a worse outcome than the one being fixed.
-  const clearTimer = useRef(null);
+  const clearTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => () => clearTimeout(clearTimer.current), []);
 
-  async function load() {
+  async function load(): Promise<void> {
     setLoading(true);
     try {
       const [docsRes, tokensRes] = await Promise.all([api.documents(), api.listTokens()]);
       const docs = docsRes?.documents || [];
-      const map = {};
+      const map: Record<string, TokenInfo> = {};
       (tokensRes?.tokens || []).forEach((t) => {
         map[t.project_id] = t;
       });
@@ -51,7 +57,7 @@ export default function Tokens() {
       setTokensByProject(map);
       setError('');
     } catch (err) {
-      setError(err.message || 'Could not load tokens');
+      setError(errorMessage(err, 'Could not load tokens'));
     } finally {
       setLoading(false);
     }
@@ -61,7 +67,7 @@ export default function Tokens() {
     load();
   }, []);
 
-  const onGenerate = async (project) => {
+  const onGenerate = async (project: DocumentSummary) => {
     setNotice('');
     setError('');
     setBusyId(project.id);
@@ -72,13 +78,13 @@ export default function Tokens() {
       // Refresh metadata (created_at / rotated state) without the raw value.
       setTokensByProject((prev) => ({ ...prev, [project.id]: data.tokenInfo }));
     } catch (err) {
-      setError(err.message || 'Could not generate token');
+      setError(errorMessage(err, 'Could not generate token'));
     } finally {
       setBusyId('');
     }
   };
 
-  const onRevoke = async (project) => {
+  const onRevoke = async (project: DocumentSummary) => {
     setNotice('');
     setError('');
     setBusyId(project.id);
@@ -91,7 +97,7 @@ export default function Tokens() {
       });
       setNotice(`Revoked the token for "${project.title}".`);
     } catch (err) {
-      setError(err.message || 'Could not revoke token');
+      setError(errorMessage(err, 'Could not revoke token'));
     } finally {
       setBusyId('');
     }

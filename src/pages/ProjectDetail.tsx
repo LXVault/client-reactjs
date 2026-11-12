@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
+import type { DocumentPayload, KnowledgeFile, ProjectDocument } from '../api/types';
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, errorMessage } from '../api/client';
 import Modal from '../components/Modal';
 
 // Mirror the backend allow-list so the picker only offers valid types.
 const ALLOWED_FILE_TYPES = '.md,.txt,.pdf';
 
-function formatDate(value) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
   try {
     return new Date(value).toLocaleString();
@@ -15,7 +17,7 @@ function formatDate(value) {
   }
 }
 
-function formatBytes(bytes) {
+function formatBytes(bytes: number | null | undefined): string {
   if (bytes === null || bytes === undefined) return '—';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -23,30 +25,31 @@ function formatBytes(bytes) {
 }
 
 export default function ProjectDetail() {
-  const { id } = useParams();
+  // The route is /documents/:id, so the param is always present.
+  const { id = '' } = useParams<{ id: string }>();
 
-  const [document, setDocument] = useState(null);
+  const [document, setDocument] = useState<ProjectDocument | null>(null);
   const [canEdit, setCanEdit] = useState(false);
-  const [role, setRole] = useState(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
   // Edit state. Fields are display-only until the user clicks "Edit".
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ title: '', summary: '' });
+  const [form, setForm] = useState<DocumentPayload>({ title: '', summary: '' });
   const [confirming, setConfirming] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Knowledge-base files (the project's central index).
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<KnowledgeFile[]>([]);
   const [filesError, setFilesError] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [fileToDelete, setFileToDelete] = useState(null);
+  const [fileToDelete, setFileToDelete] = useState<KnowledgeFile | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function load() {
+  async function load(): Promise<void> {
     try {
       const data = await api.getDocument(id);
       setDocument(data.document);
@@ -54,19 +57,19 @@ export default function ProjectDetail() {
       setRole(data.role || null);
       setError('');
     } catch (err) {
-      setError(err.message || 'Could not load project');
+      setError(errorMessage(err, 'Could not load project'));
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadFiles() {
+  async function loadFiles(): Promise<void> {
     try {
       const data = await api.listFiles(id);
       setFiles(data.files || []);
       setFilesError('');
     } catch (err) {
-      setFilesError(err.message || 'Could not load files');
+      setFilesError(errorMessage(err, 'Could not load files'));
     }
   }
 
@@ -76,7 +79,7 @@ export default function ProjectDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const onUpload = async (e) => {
+  const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const picked = e.target.files;
     if (!picked || picked.length === 0) return;
     setUploading(true);
@@ -99,7 +102,7 @@ export default function ProjectDetail() {
       await loadFiles();
       await load();
     } catch (err) {
-      setFilesError(err.message || 'Upload failed');
+      setFilesError(errorMessage(err, 'Upload failed'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -117,13 +120,14 @@ export default function ProjectDetail() {
       await loadFiles();
       await load();
     } catch (err) {
-      setFilesError(err.message || 'Could not delete file');
+      setFilesError(errorMessage(err, 'Could not delete file'));
     } finally {
       setDeleting(false);
     }
   };
 
   const startEdit = () => {
+    if (!document) return;
     setNotice('');
     setForm({ title: document.title || '', summary: document.summary || '' });
     setEditing(true);
@@ -134,11 +138,11 @@ export default function ProjectDetail() {
     setConfirming(false);
   };
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   // Save is a two-step action: clicking Save opens a confirmation popup; the
   // actual PUT only happens after the user confirms.
-  const requestSave = (e) => {
+  const requestSave = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     if (!form.title.trim()) {
@@ -161,7 +165,7 @@ export default function ProjectDetail() {
       setConfirming(false);
       setNotice('Project updated.');
     } catch (err) {
-      setError(err.message || 'Could not update project');
+      setError(errorMessage(err, 'Could not update project'));
       setConfirming(false);
     } finally {
       setSaving(false);
@@ -178,6 +182,10 @@ export default function ProjectDetail() {
       </div>
     );
   }
+
+  // A successful load always sets the document, and a failed one sets the
+  // error handled above, so this only narrows the type for what follows.
+  if (!document) return null;
 
   return (
     <div>

@@ -44,13 +44,14 @@ a message saying so.
 ## Building
 
 ```
-npm run build      # static bundle in dist/
+npm run typecheck  # tsc over src/ and vite.config.ts, emits nothing
+npm run build      # typecheck, then the static bundle in dist/
 npm run preview    # serve dist/ with the same /api proxy
 ```
 
-`npm run build` is the only mechanical check in this repository. It catches syntax errors
-and bad imports and nothing else: there is no test suite and no linter. Verify a change by
-exercising the screen in a browser.
+`npm run build` runs the type check first, so a type error fails the build. That and the
+bundle are the only mechanical checks in this repository: there is no test suite and no
+linter. Verify a change by exercising the screen in a browser.
 
 ## Pointing at a deployed backend
 

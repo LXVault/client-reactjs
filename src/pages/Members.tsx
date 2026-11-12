@@ -1,30 +1,37 @@
 import { useEffect, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
+import type { AddMemberPayload, Member, MembersResponse } from '../api/types';
+
+interface MemberRow extends Member {
+  isOwner: boolean;
+}
 import { useParams, Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, errorMessage } from '../api/client';
 import EmbeddingModelCard from '../components/EmbeddingModelCard';
 
-const ROLE_TONE = { owner: 'badge-primary', editor: 'badge-success', viewer: 'badge-muted', admin: 'badge-warning' };
+const ROLE_TONE: Record<string, string> = { owner: 'badge-primary', editor: 'badge-success', viewer: 'badge-muted', admin: 'badge-warning' };
 
 export default function Members() {
-  const { id } = useParams();
+  // The route is /documents/:id/members, so the param is always present.
+  const { id = '' } = useParams<{ id: string }>();
 
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<MembersResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Add-member form
-  const [form, setForm] = useState({ identifier: '', role: 'editor' });
+  const [form, setForm] = useState<AddMemberPayload>({ identifier: '', role: 'editor' });
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [notice, setNotice] = useState('');
 
-  async function load() {
+  async function load(): Promise<void> {
     try {
       const result = await api.listMembers(id);
       setData(result);
       setError('');
     } catch (err) {
-      setError(err.message || 'Could not load members');
+      setError(errorMessage(err, 'Could not load members'));
     } finally {
       setLoading(false);
     }
@@ -35,9 +42,9 @@ export default function Members() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const onAdd = async (e) => {
+  const onAdd = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError('');
     setNotice('');
@@ -48,13 +55,13 @@ export default function Members() {
       setForm({ identifier: '', role: 'editor' });
       await load();
     } catch (err) {
-      setFormError(err.message || 'Could not add member');
+      setFormError(errorMessage(err, 'Could not add member'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const onRemove = async (userId, username) => {
+  const onRemove = async (userId: string, username: string) => {
     setNotice('');
     setError('');
     try {
@@ -62,7 +69,7 @@ export default function Members() {
       setNotice(`Removed ${username}.`);
       await load();
     } catch (err) {
-      setError(err.message || 'Could not remove member');
+      setError(errorMessage(err, 'Could not remove member'));
     }
   };
 
@@ -78,7 +85,7 @@ export default function Members() {
   }
 
   const canManage = data?.canManage;
-  const rows = [
+  const rows: MemberRow[] = [
     ...(data?.owner ? [{ ...data.owner, isOwner: true }] : []),
     ...(data?.members || []).map((m) => ({ ...m, isOwner: false })),
   ];
