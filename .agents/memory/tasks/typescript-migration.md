@@ -22,10 +22,10 @@ The sibling repositories migrate on their own branches and do not depend on this
 
 | # | Title | Scope | Repository | Branch | PR |
 |---|---|---|---|---|---|
-| 1 | Task record | this file, `memory-index.md` | client-reactjs | `plan/typescript-migration` | |
-| 2 | Dependency update | `package.json`, `package-lock.json` | client-reactjs | `build/dependency-update` | |
-| 3 | TypeScript conversion | `src/**`, `vite.config.ts`, `tsconfig*.json`, `index.html`, scripts, docs naming the old paths | client-reactjs | `refactor/typescript` | |
-| 4 | Release | version, `wiki/logs/`, `logs-index.md`, closing entry | client-reactjs | `release/1.3.0` | |
+| 1 | Task record | this file, `memory-index.md` | client-reactjs | `plan/typescript-migration` | #21 |
+| 2 | Dependency update | `package.json`, `package-lock.json` | client-reactjs | `build/dependency-update` | #22 |
+| 3 | TypeScript conversion | `src/**`, `vite.config.ts`, `tsconfig*.json`, `index.html`, scripts, docs naming the old paths | client-reactjs | `refactor/typescript` | #23 |
+| 4 | Release | version, `wiki/logs/`, `logs-index.md`, closing entry | client-reactjs | `release/1.3.0` | #24 |
 
 ## Checklist items not applied, and why
 
@@ -101,3 +101,21 @@ clearing it, and the console stays clean. The harness was not committed, for the
 names the `.js` and `.jsx` paths, and still says components render `err.message`. It is an
 instruction file, so the change is proposed to the owner rather than written. The same goes
 for `.gitignore`, which does not exclude `.agents/plans/`.
+
+### Task 4 — release/1.3.0
+
+`package.json` and `package-lock.json` go from `1.2.0` to `1.3.0`, approved by the owner with
+the plan. Minor rather than patch because the release adds files and a script, and changes
+every source path a contributor edits, even though no behaviour changes for a user.
+`wiki/logs/1/3/0/CHANGELOG.md` describes the release, with a row in `logs-index.md`, and
+`repository-state.md` carries the new version.
+
+## Status
+
+Done on the branches; waiting on review. #21 → #22 → #23 → #24 are stacked, and each targets
+the branch below it. Nothing is merged. Merging needs the owner's separate yes, in order,
+deleting each branch as it merges, then checking that `release/1.3.0` is an ancestor of
+`master`.
+
+Open findings for the owner: update `.agents/rules/repository.md` for TypeScript and the new
+paths, and add `.agents/plans/` to `.gitignore`.

@@ -12,6 +12,7 @@ description: Release history of this frontend, newest version first, with the fi
 
 | Version | Summary | Files |
 |---|---|---|
+| [`1.3.0`](../../wiki/logs/1/3/0/CHANGELOG.md) | Strict TypeScript across the source and the Vite config, a type check before every build, and current dependencies. | `CHANGELOG.md` |
 | [`1.2.0`](../../wiki/logs/1/2/0/CHANGELOG.md) | Loopback dev server, response headers and a content security policy, server-side logout revocation, and no sample data on a failed request. | `CHANGELOG.md` |
 | [`1.1.0`](../../wiki/logs/1/1/0/CHANGELOG.md) | Embedding coverage, a backfill action, and copy that says a model change deletes nothing. | `CHANGELOG.md` |
 | [`1.0.0`](../../wiki/logs/1/0/0/CHANGELOG.md) | The app as it stands, plus the agent instruction, knowledge and memory system. | `CHANGELOG.md` |

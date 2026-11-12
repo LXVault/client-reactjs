@@ -7,7 +7,7 @@ description: Current known state of the mcp-rag-client frontend after the instru
 
 ## What exists
 
-A working React and Vite single page app, version `1.2.0`, written in strict TypeScript
+A working React and Vite single page app, version `1.3.0`, written in strict TypeScript
 with JSX. `tsc` type checks and Vite compiles; there is no other build step.
 
 * Login and register, with the session held in `AuthContext` and the JWT in `localStorage`.
