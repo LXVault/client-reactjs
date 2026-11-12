@@ -15,7 +15,7 @@ bundling. Nothing the app does has changed.
   `tsc` only checks; Vite still compiles, so `dist/` and the image are unchanged.
 * `src/api/types.ts`, the backend's responses as the screens read them. They are cast onto
   responses, not validated, so a backend field rename still type checks. See
-  [information/architecture.md](../../../information/architecture.md).
+  [information/architecture.md](../../../../information/architecture.md).
 * `npm run typecheck`, which `npm run build` now runs first.
 
 ## Changed
