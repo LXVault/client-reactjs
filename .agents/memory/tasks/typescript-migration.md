@@ -61,3 +61,43 @@ compiler; it still installs as `tsc`.
 
 `npm audit`: 0 vulnerabilities. No code changed in this task, so `npm run build` on this
 branch is the same JavaScript build as before.
+
+### Task 3 — refactor/typescript
+
+Landed:
+
+* Every file under `src/` renamed: `.jsx` to `.tsx`, `src/api/client.js` to `.ts`, and
+  `vite.config.js` to `vite.config.ts`. `index.html` loads `src/main.tsx`.
+* `tsconfig.json` for `src/`: `ES2022`, bundler resolution, `react-jsx`, `strict`,
+  `noEmit`, `rootDir: ./src`, `vite/client` types. `tsconfig.node.json` for
+  `vite.config.ts`: `NodeNext`, `node` types.
+* `src/api/types.ts` describes each backend response as the screens read it. Field shapes
+  were checked against the controllers in `server-expressjs`; ids are UUID strings.
+* `src/api/client.ts`: `request<T>` and `upload<T>` are generic and every `api` method
+  names its response type. The two copies of the error construction became
+  `responseError` and `networkError`, with the same messages and `status`. A new
+  `errorMessage(err, fallback)` replaces `err.message || fallback` in every component,
+  because a caught value is `unknown` under `strict`.
+* `src/vite-env.d.ts` types `VITE_API_URL`.
+* Scripts: `typecheck` runs both configurations, and `build` runs it before `vite build`.
+* Docs: `wiki/information/architecture.md` (new Types section), `wiki/environments/env.md`,
+  `wiki/environments/setup.md`, `.agents/wiki/context/repository-map.md`,
+  `.agents/memory/state/repository-state.md`.
+
+Two narrowings were not pure annotations. `ProjectDetail` returns `null` when no document
+has loaded and there is no error, a state that previously threw on `document.title`, and
+`startEdit` returns early on the same condition. `ProtectedRoute` wraps `children` in a
+fragment so its return type is an element.
+
+**Verified.** `npm run typecheck` and `npm run build` pass; `npm audit` reports 0. The
+bundle is 689 kB against 691 kB before; the chunk size warning predates this change. A
+Playwright run against `vite preview`, with the API stubbed at the network layer, passed 14
+of 14 checks: login stores the token, every protected screen renders its data, the bar and
+pie charts draw, a `403` shows the backend's message, logout sends the bearer before
+clearing it, and the console stays clean. The harness was not committed, for the reason
+`dependency-upgrade.md` gives.
+
+**Left stale, on purpose.** `.agents/rules/repository.md` still forbids TypeScript, still
+names the `.js` and `.jsx` paths, and still says components render `err.message`. It is an
+instruction file, so the change is proposed to the owner rather than written. The same goes
+for `.gitignore`, which does not exclude `.agents/plans/`.

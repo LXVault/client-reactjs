@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { api } from '../api/client';
+import type { User } from '../api/types';
+import { api, errorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import OpenRouterKeyCard from '../components/OpenRouterKeyCard';
 
-function formatDate(value) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
   try {
     return new Date(value).toLocaleString();
@@ -14,7 +15,7 @@ function formatDate(value) {
 
 export default function Profile() {
   const { user: ctxUser } = useAuth();
-  const [user, setUser] = useState(ctxUser);
+  const [user, setUser] = useState<User | null>(ctxUser);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -27,7 +28,7 @@ export default function Profile() {
       } catch (err) {
         // Fall back to the context user (from login) if the call fails.
         if (active) {
-          setError(err.message || 'Could not refresh profile');
+          setError(errorMessage(err, 'Could not refresh profile'));
           setUser((prev) => prev || ctxUser);
         }
       } finally {

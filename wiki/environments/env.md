@@ -5,10 +5,10 @@ Every value has a fallback in code, so the app runs with no `.env` file at all. 
 
 | Variable | Default | Read by | Purpose |
 |---|---|---|---|
-| `VITE_API_URL` | empty | `src/api/client.js` | The backend **origin**, with no `/api` suffix. Empty resolves to a same origin relative base, which the dev server proxies. |
-| `VITE_PROXY_TARGET` | `http://localhost:4000` | `vite.config.js` | Where the dev and preview servers proxy `/api`. Development only. |
-| `FRONTEND_PORT` | `5173` | `vite.config.js` | Port for the dev and preview servers. |
-| `FRONTEND_HOST` | `localhost` | `vite.config.js` | Interface the dev and preview servers bind to. Loopback unless you set it. |
+| `VITE_API_URL` | empty | `src/api/client.ts` | The backend **origin**, with no `/api` suffix. Empty resolves to a same origin relative base, which the dev server proxies. |
+| `VITE_PROXY_TARGET` | `http://localhost:4000` | `vite.config.ts` | Where the dev and preview servers proxy `/api`. Development only. |
+| `FRONTEND_PORT` | `5173` | `vite.config.ts` | Port for the dev and preview servers. |
+| `FRONTEND_HOST` | `localhost` | `vite.config.ts` | Interface the dev and preview servers bind to. Loopback unless you set it. |
 
 ## `FRONTEND_HOST` is loopback unless you say otherwise
 

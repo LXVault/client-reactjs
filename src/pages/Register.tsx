@@ -1,18 +1,21 @@
 import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { errorMessage } from '../api/client';
+import type { RegisterPayload } from '../api/types';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [form, setForm] = useState<RegisterPayload>({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const onSubmit = async (e) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
@@ -20,7 +23,7 @@ export default function Register() {
       await register(form);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      setError(errorMessage(err, 'Registration failed'));
     } finally {
       setSubmitting(false);
     }

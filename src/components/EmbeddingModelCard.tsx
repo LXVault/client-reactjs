@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { api } from '../api/client';
+import type { FormEvent } from 'react';
+import type { EmbeddingCoverage, EmbeddingModelResponse, StoredModel } from '../api/types';
+
+interface EmbeddingModelCardProps {
+  projectId: string;
+}
+import { api, errorMessage } from '../api/client';
 
 // Per-project embedding model. Anyone with access can see it; only the owner or
 // an admin can change it (enforced both here and server-side).
@@ -9,11 +15,11 @@ import { api } from '../api/client';
 // a switch readable: nothing is lost, some chunks are simply not embedded with
 // the new model yet, and generating those is a separate, explicit step because
 // it spends the user's own OpenRouter credits.
-export default function EmbeddingModelCard({ projectId }) {
+export default function EmbeddingModelCard({ projectId }: EmbeddingModelCardProps) {
   const [model, setModel] = useState('');
-  const [models, setModels] = useState([]);
-  const [coverage, setCoverage] = useState(null);
-  const [storedModels, setStoredModels] = useState([]);
+  const [models, setModels] = useState<string[]>([]);
+  const [coverage, setCoverage] = useState<EmbeddingCoverage | null>(null);
+  const [storedModels, setStoredModels] = useState<StoredModel[]>([]);
   const [canConfigure, setCanConfigure] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -24,7 +30,7 @@ export default function EmbeddingModelCard({ projectId }) {
 
   // Every endpoint returns the same payload, so one applier keeps the card in
   // step with the server after a read, a switch, a backfill or a removal.
-  function apply(data) {
+  function apply(data: EmbeddingModelResponse): void {
     setModel(data.model || '');
     setModels(data.models || []);
     setCoverage(data.coverage || null);
@@ -32,12 +38,12 @@ export default function EmbeddingModelCard({ projectId }) {
     if (data.canConfigure !== undefined) setCanConfigure(Boolean(data.canConfigure));
   }
 
-  async function load() {
+  async function load(): Promise<void> {
     try {
       apply(await api.getEmbeddingModel(projectId));
       setError('');
     } catch (err) {
-      setError(err.message || 'Could not load embedding model');
+      setError(errorMessage(err, 'Could not load embedding model'));
     } finally {
       setLoading(false);
     }
@@ -48,7 +54,7 @@ export default function EmbeddingModelCard({ projectId }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
-  const onSave = async (e) => {
+  const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setNotice('');
@@ -65,7 +71,7 @@ export default function EmbeddingModelCard({ projectId }) {
           : 'Model updated. Every chunk is already embedded with it, so search works now.'
       );
     } catch (err) {
-      setError(err.message || 'Could not update model');
+      setError(errorMessage(err, 'Could not update model'));
     } finally {
       setSaving(false);
     }
@@ -94,7 +100,7 @@ export default function EmbeddingModelCard({ projectId }) {
       );
     } catch (err) {
       setError(
-        `${err.message || 'Could not generate embeddings'}${
+        `${errorMessage(err, 'Could not generate embeddings')}${
           total > 0 ? ` (${total} embedded before this failed)` : ''
         }`
       );
@@ -104,7 +110,7 @@ export default function EmbeddingModelCard({ projectId }) {
     }
   };
 
-  const onRemoveModel = async (name) => {
+  const onRemoveModel = async (name: string) => {
     setError('');
     setNotice('');
     setRemoving(name);
@@ -113,7 +119,7 @@ export default function EmbeddingModelCard({ projectId }) {
       apply(data);
       setNotice(`Removed ${data.removed} embedding${data.removed === 1 ? '' : 's'} for ${name}.`);
     } catch (err) {
-      setError(err.message || 'Could not remove embeddings');
+      setError(errorMessage(err, 'Could not remove embeddings'));
     } finally {
       setRemoving('');
     }

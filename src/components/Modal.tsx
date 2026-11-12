@@ -1,9 +1,17 @@
 import { useEffect } from 'react';
+import type { ReactNode } from 'react';
+
+interface ModalProps {
+  title: ReactNode;
+  onClose: () => void;
+  children: ReactNode;
+  footer?: ReactNode;
+}
 
 // Lightweight accessible modal. Closes on Escape and backdrop click.
-export default function Modal({ title, onClose, children, footer }) {
+export default function Modal({ title, onClose, children, footer }: ModalProps) {
   useEffect(() => {
-    const onKey = (e) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKey);

@@ -12,10 +12,16 @@ import {
   Cell,
   Legend,
 } from 'recharts';
-import { api } from '../api/client';
+import { api, errorMessage } from '../api/client';
+import type { AnalysisResponse } from '../api/types';
+
+interface PieEntry {
+  name: string;
+  value: number;
+}
 
 // Fallback dataset used when the API is empty or unreachable.
-const MOCK_ANALYSIS = {
+const MOCK_ANALYSIS: AnalysisResponse = {
   totalDocuments: 3,
   totalChunks: 54,
   chunksPerDocument: [
@@ -33,7 +39,7 @@ const MOCK_ANALYSIS = {
 const PIE_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7'];
 
 export default function Analysis() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<AnalysisResponse | null>(null);
   const [usingMock, setUsingMock] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -62,7 +68,7 @@ export default function Analysis() {
         // rendering the sample set would report three projects and 54 chunks
         // for an account that has neither — the numbers would be true of the
         // fixture and false of the user, with nothing on screen to say which.
-        setError(err.message || 'Could not load analysis');
+        setError(errorMessage(err, 'Could not load analysis'));
         setData(null);
         setUsingMock(false);
       } finally {
@@ -86,7 +92,7 @@ export default function Analysis() {
     name: d.title,
     chunks: d.chunk_count,
   }));
-  const pieData = (data.roleDistribution || []).map((r) => ({
+  const pieData: PieEntry[] = (data.roleDistribution || []).map((r) => ({
     name: r.role,
     value: r.count,
   }));

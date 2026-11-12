@@ -1,20 +1,29 @@
 import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import type { Location } from 'react-router-dom';
+import { errorMessage } from '../api/client';
+import type { Credentials } from '../api/types';
 import { useAuth } from '../context/AuthContext';
+
+// ProtectedRoute redirects here with the location it bounced the user from.
+interface LocationState {
+  from?: Location;
+}
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const from = (location.state as LocationState | null)?.from?.pathname || '/';
 
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState<Credentials>({ email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const onSubmit = async (e) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
@@ -22,7 +31,7 @@ export default function Login() {
       await login(form);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError(errorMessage(err, 'Login failed'));
     } finally {
       setSubmitting(false);
     }

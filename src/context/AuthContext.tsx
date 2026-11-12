@@ -1,17 +1,33 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { api, getToken, setToken } from '../api/client';
+import type { Credentials, RegisterPayload, User } from '../api/types';
 
-const AuthContext = createContext(null);
+export interface AuthContextValue {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+  isAuthenticated: boolean;
+  login: (credentials: Credentials) => Promise<User>;
+  register: (payload: RegisterPayload) => Promise<User>;
+  logout: () => Promise<void>;
+}
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setTokenState] = useState(getToken());
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setTokenState] = useState<string | null>(getToken());
   const [loading, setLoading] = useState(Boolean(getToken()));
 
   // On first load, if a token exists, hydrate the user from the API.
   useEffect(() => {
     let active = true;
-    async function hydrate() {
+    async function hydrate(): Promise<void> {
       if (!token) {
         setLoading(false);
         return;
@@ -35,7 +51,7 @@ export function AuthProvider({ children }) {
     };
   }, [token]);
 
-  async function login(credentials) {
+  async function login(credentials: Credentials): Promise<User> {
     const data = await api.login(credentials);
     setToken(data.token);
     setTokenState(data.token);
@@ -43,7 +59,7 @@ export function AuthProvider({ children }) {
     return data.user;
   }
 
-  async function register(payload) {
+  async function register(payload: RegisterPayload): Promise<User> {
     const data = await api.register(payload);
     setToken(data.token);
     setTokenState(data.token);
@@ -63,7 +79,7 @@ export function AuthProvider({ children }) {
   // them in a session they have already decided to end. The token then stays
   // valid until it expires, which is the same exposure as any other failed
   // revocation.
-  async function logout() {
+  async function logout(): Promise<void> {
     const revoked = api.logout().catch(() => {});
     setToken(null);
     setTokenState(null);
@@ -71,7 +87,7 @@ export function AuthProvider({ children }) {
     await revoked;
   }
 
-  const value = useMemo(
+  const value = useMemo<AuthContextValue>(
     () => ({ user, token, loading, isAuthenticated: Boolean(token), login, register, logout }),
     [user, token, loading]
   );
@@ -79,7 +95,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;

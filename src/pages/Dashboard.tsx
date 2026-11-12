@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
+import type { DocumentPayload, DocumentSummary } from '../api/types';
 import { Link } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, errorMessage } from '../api/client';
 import Modal from '../components/Modal';
 
 // Shown when the API returns no documents or is unreachable, so the UI is
 // never empty during development.
-const MOCK_DOCUMENTS = [
+const MOCK_DOCUMENTS: DocumentSummary[] = [
   { id: 'mock-1', title: 'Onboarding Guide', summary: 'How to get started with the platform.', role: 'owner', chunk_count: 12, file_count: 2, updated_at: '2026-06-01T10:00:00Z', is_owner: true },
   { id: 'mock-2', title: 'API Reference', summary: 'Endpoints, auth and rate limits.', role: 'editor', chunk_count: 34, file_count: 5, updated_at: '2026-06-05T14:30:00Z', is_owner: false },
   { id: 'mock-3', title: 'Security Policy', summary: 'Data handling and access control.', role: 'viewer', chunk_count: 8, file_count: 1, updated_at: '2026-06-08T09:15:00Z', is_owner: false },
 ];
 
-const ROLE_TONE = { owner: 'badge-primary', editor: 'badge-success', viewer: 'badge-muted', admin: 'badge-warning' };
+const ROLE_TONE: Record<string, string> = { owner: 'badge-primary', editor: 'badge-success', viewer: 'badge-muted', admin: 'badge-warning' };
 
-function formatDate(value) {
+function formatDate(value: string | null | undefined): string {
   if (!value) return '—';
   try {
     return new Date(value).toLocaleDateString();
@@ -23,18 +25,18 @@ function formatDate(value) {
 }
 
 export default function Dashboard() {
-  const [documents, setDocuments] = useState([]);
+  const [documents, setDocuments] = useState<DocumentSummary[]>([]);
   const [usingMock, setUsingMock] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Create-project modal state
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: '', summary: '' });
+  const [form, setForm] = useState<DocumentPayload>({ title: '', summary: '' });
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
 
-  async function loadDocuments() {
+  async function loadDocuments(): Promise<void> {
     try {
       const data = await api.documents();
       const docs = data?.documents || [];
@@ -51,7 +53,7 @@ export default function Dashboard() {
       // list beside the error banner says "the request failed"; three demo
       // projects say "this account has projects" and are true of neither.
       // `[]` rather than null, because the totals below call reduce on it.
-      setError(err.message || 'Could not load documents');
+      setError(errorMessage(err, 'Could not load documents'));
       setDocuments([]);
       setUsingMock(false);
     } finally {
@@ -63,9 +65,9 @@ export default function Dashboard() {
     loadDocuments();
   }, []);
 
-  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const onCreate = async (e) => {
+  const onCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setCreateError('');
     setCreating(true);
@@ -75,7 +77,7 @@ export default function Dashboard() {
       setForm({ title: '', summary: '' });
       await loadDocuments();
     } catch (err) {
-      setCreateError(err.message || 'Could not create project');
+      setCreateError(errorMessage(err, 'Could not create project'));
     } finally {
       setCreating(false);
     }
@@ -139,7 +141,7 @@ export default function Dashboard() {
                   <td className="strong">{doc.title}</td>
                   <td className="muted">{doc.summary || '—'}</td>
                   <td>
-                    <span className={`badge ${ROLE_TONE[doc.role] || 'badge-muted'}`}>
+                    <span className={`badge ${(doc.role && ROLE_TONE[doc.role]) || 'badge-muted'}`}>
                       {doc.role || 'editor'}
                     </span>
                   </td>

@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import type { NavLinkRenderProps } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
@@ -14,7 +15,7 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  const linkClass = ({ isActive }) => (isActive ? 'nav-link active' : 'nav-link');
+  const linkClass = ({ isActive }: NavLinkRenderProps): string => (isActive ? 'nav-link active' : 'nav-link');
 
   return (
     <nav className="navbar">

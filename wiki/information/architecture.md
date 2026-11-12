@@ -3,19 +3,33 @@
 ## Shape
 
 ```
-src/main.jsx            mount, BrowserRouter, AuthProvider
-  src/App.jsx           every route, and which are wrapped in ProtectedRoute
-    src/components/Layout.jsx    navbar plus the routed page
-      src/pages/*.jsx            one file per screen
-        src/api/client.js        the only module that calls fetch
+src/main.tsx            mount, BrowserRouter, AuthProvider
+  src/App.tsx           every route, and which are wrapped in ProtectedRoute
+    src/components/Layout.tsx    navbar plus the routed page
+      src/pages/*.tsx            one file per screen
+        src/api/client.ts        the only module that calls fetch
+        src/api/types.ts         the response and payload shapes the screens read
 ```
 
-Plain JavaScript with JSX. No TypeScript, no state management library, no CSS framework and
-no component library. Local component state plus one context is the whole model.
+TypeScript with JSX, in strict mode. No state management library, no CSS framework and no
+component library. Local component state plus one context is the whole model.
+
+## Types
+
+`tsc` only type checks; Vite still does the compiling, so the output in `dist/` is the same
+static bundle it always was. There are two configurations: `tsconfig.json` covers `src/`
+with bundler module resolution and the React JSX transform, and `tsconfig.node.json` covers
+`vite.config.ts`, which runs in Node.
+
+`src/api/types.ts` describes the backend's responses as this client reads them. The backend
+owns those contracts, so the types list only the fields a screen uses, and a field the code
+already guards against being absent is optional. A response is cast to its type, not
+validated, so a backend change can still reach the screen as a runtime surprise rather than
+a compile error.
 
 ## Routing
 
-`src/App.jsx` declares every route inside a single `Layout` element, so the navbar renders
+`src/App.tsx` declares every route inside a single `Layout` element, so the navbar renders
 once and the page swaps beneath it. Authenticated routes are wrapped in `ProtectedRoute`,
 which redirects to `/login` when there is no session. An unknown path redirects to `/`.
 
@@ -25,7 +39,7 @@ which redirects to `/login` when there is no session. An unknown path redirects 
 user through `useAuth()`.
 
 The JWT is stored in `localStorage` under `mcp_rag_token`, written only through `setToken`
-in `src/api/client.js`. On first load, a stored token is exchanged for the user with
+in `src/api/client.ts`. On first load, a stored token is exchanged for the user with
 `GET /api/profile`; if the backend rejects it the token is cleared, which is how an expired
 session logs itself out.
 
@@ -37,7 +51,7 @@ network never leaves the user sitting on a page they have already left.
 
 ## Talking to the backend
 
-`src/api/client.js` is the single boundary. It owns four things:
+`src/api/client.ts` is the single boundary. It owns four things:
 
 **The base URL.** `VITE_API_URL` is the backend origin, and the client appends `/api`
 itself. An empty value resolves to a same origin relative base, which the Vite dev server
@@ -48,7 +62,9 @@ accidental `/api` suffix is stripped defensively.
 
 **Error normalization.** A network failure becomes `Network error: unable to reach the
 API`. A non 2xx response becomes an `Error` carrying the backend's own `error` string and
-its status. Pages render `err.message` and never inspect a response themselves.
+its status. Pages render the message through `errorMessage(err, fallback)`, which also
+gives a caught value of unknown type a readable string, and never inspect a response
+themselves.
 
 **One method per endpoint.** The exported `api` object mirrors the backend surface:
 `login`, `register`, `logout`, `profile`, projects and members, files, tokens, the
